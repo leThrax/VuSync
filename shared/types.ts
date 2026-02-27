@@ -1,5 +1,10 @@
 // ---- Shared types used by both client and server ----
 
+export interface QueueItem {
+    videoId: string;
+    title: string;
+}
+
 export interface User {
     id: string;
     name: string;
@@ -14,6 +19,7 @@ export interface Room {
     videoUrl: string;
     users: User[];
     playerState: PlayerState;
+    queue: QueueItem[]; // ordered list of queued videos
 }
 
 export interface PlayerState {

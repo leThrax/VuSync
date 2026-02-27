@@ -13,6 +13,11 @@ export const EVENTS = {
     SEEK: 'sync:seek',
     CHANGE_VIDEO: 'sync:changeVideo',
 
+    // Queue
+    QUEUE_ADD: 'queue:add',
+    QUEUE_CLEAR: 'queue:clear',
+    QUEUE_ADVANCE: 'queue:advance',
+
     // Chat
     CHAT_MESSAGE: 'chat:message',
 

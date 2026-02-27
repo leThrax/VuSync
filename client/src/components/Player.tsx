@@ -3,6 +3,7 @@ import YouTube from 'react-youtube'
 import type { YouTubeEvent } from 'react-youtube'
 import type { YouTubePlayer } from 'react-youtube'
 import { useSync } from '../hooks/useSync'
+import { SERVER_URL } from '../socket'
 import UserList from './UserList'
 import './Player.css'
 
@@ -26,6 +27,7 @@ export default function Player() {
     const [urlInput, setUrlInput] = useState('')
     const [joinInput, setJoinInput] = useState('')
     const [toasts, setToasts] = useState<Toast[]>([])
+    const [isValidating, setIsValidating] = useState(false)
     const playerRef = useRef<YouTubePlayer | null>(null)
     const prevStateRef = useRef(-1)
     const toastIdRef = useRef(0)
@@ -37,12 +39,60 @@ export default function Player() {
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
     }
 
-    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, createRoom, joinRoom, leaveRoom } =
-        useSync(playerRef, setVideoId, () => addToast('You were kicked from the room', 'left', 'danger'))
+    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueClear, emitQueueAdvance, createRoom, joinRoom, leaveRoom } =
+        useSync(
+            playerRef,
+            setVideoId,
+            () => addToast('You were kicked from the room', 'left', 'danger'),
+            (userName) => addToast(`${userName} left the room`, 'left'),
+            () => addToast('Joined the room', 'left'),
+            (userName) => addToast(`${userName} joined the room`, 'left'),
+        )
 
     function handleKick(targetId: string) {
         emitKickUser(targetId)
         addToast('User kicked successfully', 'left')
+    }
+
+    async function validateVideo(id: string): Promise<boolean> {
+        setIsValidating(true)
+        try {
+            const res = await fetch(`${SERVER_URL}/api/check-video/${encodeURIComponent(id)}`)
+            const data = await res.json() as { available: boolean }
+            return data.available
+        } catch {
+            return false
+        } finally {
+            setIsValidating(false)
+        }
+    }
+
+    async function handleQueueNext() {
+        const id = extractVideoId(urlInput)
+        if (!id) return
+        if (!await validateVideo(id)) {
+            addToast('No video found at this URL', 'left', 'danger')
+            return
+        }
+        setUrlInput('')
+        emitQueueAdd(id, 'next')
+    }
+
+    async function handleQueueLast() {
+        const id = extractVideoId(urlInput)
+        if (!id) return
+        if (!await validateVideo(id)) {
+            addToast('No video found at this URL', 'left', 'danger')
+            return
+        }
+        setUrlInput('')
+        emitQueueAdd(id, 'last')
+    }
+
+    function handleEnd() {
+        if (hasControl && room && room.queue.length > 0) {
+            emitQueueAdvance()
+        }
     }
 
     function handleReady(event: YouTubeEvent) {
@@ -83,10 +133,14 @@ export default function Player() {
         prevStateRef.current = event.data
     }
 
-    function handleUrlSubmit(e: { preventDefault(): void }) {
+    async function handleUrlSubmit(e: { preventDefault(): void }) {
         e.preventDefault()
         const id = extractVideoId(urlInput)
         if (!id) return
+        if (!await validateVideo(id)) {
+            addToast('No video found at this URL', 'left', 'danger')
+            return
+        }
         setUrlInput('')
         if (room) {
             emitChangeVideo(id)
@@ -136,18 +190,42 @@ export default function Player() {
                         onPlay={handlePlay}
                         onPause={handlePause}
                         onStateChange={handleStateChange}
+                        onEnd={handleEnd}
                     />
                 </div>
             </div>
 
             {inRoom && (
-                <UserList
-                    room={room}
-                    socketId={socketId}
-                    onChangeName={emitChangeName}
-                    onKick={handleKick}
-                    onGrantControl={emitGrantControl}
-                />
+                <div className="right-panel">
+                    <UserList
+                        room={room}
+                        socketId={socketId}
+                        onChangeName={emitChangeName}
+                        onKick={handleKick}
+                        onGrantControl={emitGrantControl}
+                    />
+                    <div className="queue-panel">
+                        <div className="queue-panel__header">
+                            <span>Up next{room.queue.length > 0 ? ` (${room.queue.length})` : ''}</span>
+                        </div>
+                        {room.queue.length === 0 ? (
+                            <p className="queue-empty">Queue is empty</p>
+                        ) : (
+                            <div className="queue-panel__list">
+                                {room.queue.map((item, i) => (
+                                    <div key={`${item.videoId}-${i}`} className="queue-item">
+                                        <img
+                                            className="queue-item__thumb"
+                                            src={`https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`}
+                                            alt=""
+                                        />
+                                        <span className="queue-item__title">{item.title}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
             )}
 
             <div className="bottom-bar">
@@ -175,9 +253,16 @@ export default function Player() {
                     </div>
                 ) : (
                     <div className="room-info">
-                        <span className="room-code">Code: <strong>{room.id}</strong></span>
+                        <span
+                            className="room-code room-code--clickable"
+                            onClick={() => {
+                                navigator.clipboard.writeText(room.id)
+                                addToast('Room code copied!', 'left')
+                            }}
+                            title="Click to copy"
+                        >Code: <strong>{room.id}</strong></span>
                         <span className="room-status">{isHost ? 'Host' : 'Guest'} · {room.users.length} online</span>
-                        <button className="room-btn room-btn--leave" onClick={leaveRoom}>Leave</button>
+                        <button className="room-btn room-btn--leave" onClick={() => { addToast('Room left', 'left'); leaveRoom() }}>Leave</button>
                     </div>
                 )}
                 <form className="url-form" onSubmit={handleUrlSubmit}>
@@ -188,10 +273,46 @@ export default function Player() {
                         placeholder={inRoom && !hasControl ? 'Only the host can change the video' : 'Paste a YouTube URL…'}
                         disabled={inRoom && !hasControl}
                     />
-                    <button className="url-submit" type="submit" disabled={inRoom && !hasControl}>
-                        Load
+                    <button className="url-submit" type="submit" disabled={(inRoom && !hasControl) || isValidating}>
+                        {isValidating ? 'Checking…' : 'Load'}
                     </button>
                 </form>
+                {inRoom && hasControl && (
+                    <div className="queue-actions">
+                        <button
+                            type="button"
+                            className="queue-btn"
+                            onClick={handleQueueNext}
+                            disabled={!extractVideoId(urlInput) || isValidating}
+                        >
+                            Queue next
+                        </button>
+                        <button
+                            type="button"
+                            className="queue-btn"
+                            onClick={handleQueueLast}
+                            disabled={!extractVideoId(urlInput) || isValidating}
+                        >
+                            Queue last
+                        </button>
+                        <button
+                            type="button"
+                            className="queue-btn queue-btn--clear"
+                            onClick={() => emitQueueClear()}
+                            disabled={room.queue.length === 0}
+                        >
+                            Clear queue
+                        </button>
+                        <button
+                            type="button"
+                            className="queue-btn queue-btn--skip"
+                            onClick={() => emitQueueAdvance()}
+                            disabled={room.queue.length === 0}
+                        >
+                            Skip
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     )

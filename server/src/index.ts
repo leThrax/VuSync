@@ -22,6 +22,19 @@ app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: Date.now() });
 });
 
+// Validate a YouTube video ID by proxying YouTube's oEmbed API
+app.get('/api/check-video/:videoId', async (req, res) => {
+    const { videoId } = req.params;
+    try {
+        const oEmbedRes = await fetch(
+            `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&format=json`
+        );
+        res.json({ available: oEmbedRes.ok });
+    } catch {
+        res.json({ available: false });
+    }
+});
+
 // Setup WebSocket handlers
 setupSocketHandlers(io);
 
