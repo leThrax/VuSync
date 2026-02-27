@@ -16,7 +16,6 @@ export interface Room {
     id: string;
     name: string;
     hostId: string;
-    videoUrl: string;
     users: User[];
     playerState: PlayerState;
     queue: QueueItem[]; // ordered list of queued videos
@@ -27,12 +26,6 @@ export interface PlayerState {
     currentTime: number;    // seconds
     videoId: string;
     lastUpdated: number;    // timestamp
-}
-
-// Socket.IO event payloads
-export interface SyncEvent {
-    roomId: string;
-    playerState: PlayerState;
 }
 
 export interface ChatMessage {

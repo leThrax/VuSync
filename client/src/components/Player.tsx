@@ -4,23 +4,12 @@ import type { YouTubeEvent } from 'react-youtube'
 import type { YouTubePlayer } from 'react-youtube'
 import { useSync } from '../hooks/useSync'
 import { SERVER_URL } from '../socket'
+import { extractVideoId } from '../utils'
 import UserList from './UserList'
+import QueuePanel from './QueuePanel'
 import './Player.css'
 
 interface Toast { id: number; message: string; side: 'left' | 'right'; type: 'danger' | 'success' }
-
-function extractVideoId(url: string): string | null {
-    const patterns = [
-        /[?&]v=([^&#]+)/,
-        /youtu\.be\/([^&#?/]+)/,
-        /\/embed\/([^&#?/]+)/,
-    ]
-    for (const pattern of patterns) {
-        const match = url.match(pattern)
-        if (match) return match[1]
-    }
-    return null
-}
 
 export default function Player() {
     const [videoId, setVideoId] = useState('dQw4w9WgXcQ')
@@ -204,27 +193,7 @@ export default function Player() {
                         onKick={handleKick}
                         onGrantControl={emitGrantControl}
                     />
-                    <div className="queue-panel">
-                        <div className="queue-panel__header">
-                            <span>Up next{room.queue.length > 0 ? ` (${room.queue.length})` : ''}</span>
-                        </div>
-                        {room.queue.length === 0 ? (
-                            <p className="queue-empty">Queue is empty</p>
-                        ) : (
-                            <div className="queue-panel__list">
-                                {room.queue.map((item, i) => (
-                                    <div key={`${item.videoId}-${i}`} className="queue-item">
-                                        <img
-                                            className="queue-item__thumb"
-                                            src={`https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`}
-                                            alt=""
-                                        />
-                                        <span className="queue-item__title">{item.title}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <QueuePanel queue={room.queue} />
                 </div>
             )}
 
