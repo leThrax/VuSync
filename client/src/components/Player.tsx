@@ -3,7 +3,10 @@ import YouTube from 'react-youtube'
 import type { YouTubeEvent } from 'react-youtube'
 import type { YouTubePlayer } from 'react-youtube'
 import { useSync } from '../hooks/useSync'
+import UserList from './UserList'
 import './Player.css'
+
+interface Toast { id: number; message: string; side: 'left' | 'right'; type: 'danger' | 'success' }
 
 function extractVideoId(url: string): string | null {
     const patterns = [
@@ -18,20 +21,29 @@ function extractVideoId(url: string): string | null {
     return null
 }
 
-function randomName(): string {
-    return 'User' + Math.floor(Math.random() * 9000 + 1000)
-}
-
 export default function Player() {
     const [videoId, setVideoId] = useState('dQw4w9WgXcQ')
     const [urlInput, setUrlInput] = useState('')
     const [joinInput, setJoinInput] = useState('')
+    const [toasts, setToasts] = useState<Toast[]>([])
     const playerRef = useRef<YouTubePlayer | null>(null)
     const prevStateRef = useRef(-1)
-    const userNameRef = useRef(randomName())
+    const toastIdRef = useRef(0)
+    const pauseEmitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    const { isConnected, room, isHost, emitPlay, emitPause, emitSeek, emitChangeVideo, createRoom, joinRoom } =
-        useSync(playerRef, setVideoId)
+    function addToast(message: string, side: 'left' | 'right', type: 'danger' | 'success' = 'success') {
+        const id = ++toastIdRef.current
+        setToasts(prev => [...prev, { id, message, side, type }])
+        setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
+    }
+
+    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, createRoom, joinRoom, leaveRoom } =
+        useSync(playerRef, setVideoId, () => addToast('You were kicked from the room', 'left', 'danger'))
+
+    function handleKick(targetId: string) {
+        emitKickUser(targetId)
+        addToast('User kicked successfully', 'left')
+    }
 
     function handleReady(event: YouTubeEvent) {
         playerRef.current = event.target
@@ -43,19 +55,29 @@ export default function Player() {
     }
 
     async function handlePlay(event: YouTubeEvent) {
-        if (!isHost) return
+        if (!hasControl) return
         const currentTime = await event.target.getCurrentTime()
         emitPlay(currentTime)
     }
 
     async function handlePause(event: YouTubeEvent) {
-        if (!isHost) return
+        if (!hasControl) return
         const currentTime = await event.target.getCurrentTime()
-        emitPause(currentTime)
+        // Delay emission so a seek (state 2→3) can cancel this before it fires
+        if (pauseEmitTimeoutRef.current !== null) clearTimeout(pauseEmitTimeoutRef.current)
+        pauseEmitTimeoutRef.current = setTimeout(() => {
+            pauseEmitTimeoutRef.current = null
+            emitPause(currentTime)
+        }, 100)
     }
 
     function handleStateChange(event: YouTubeEvent<number>) {
-        if (isHost && prevStateRef.current === 2 && event.data === 3) {
+        if (hasControl && prevStateRef.current === 2 && event.data === 3) {
+            // Seeking: cancel the pending pause (it was a seek-pause, not a real pause)
+            if (pauseEmitTimeoutRef.current !== null) {
+                clearTimeout(pauseEmitTimeoutRef.current)
+                pauseEmitTimeoutRef.current = null
+            }
             event.target.getCurrentTime().then((t: number) => emitSeek(t))
         }
         prevStateRef.current = event.data
@@ -66,22 +88,22 @@ export default function Player() {
         const id = extractVideoId(urlInput)
         if (!id) return
         setUrlInput('')
-        if (room && isHost) {
+        if (room) {
             emitChangeVideo(id)
             setVideoId(id)
-        } else if (!room) {
+        } else {
             setVideoId(id)
         }
     }
 
     function handleCreateRoom() {
-        createRoom('Room ' + userNameRef.current, userNameRef.current)
+        createRoom('My Room', '')
     }
 
     function handleJoinRoom(e: { preventDefault(): void }) {
         e.preventDefault()
         if (!joinInput.trim()) return
-        joinRoom(joinInput.trim(), userNameRef.current)
+        joinRoom(joinInput.trim(), '')
         setJoinInput('')
     }
 
@@ -89,6 +111,21 @@ export default function Player() {
 
     return (
         <div className="player-layout">
+            {toasts.filter(t => t.side === 'left').length > 0 && (
+                <div className="toast-container toast-container--left">
+                    {toasts.filter(t => t.side === 'left').map(t => (
+                        <div key={t.id} className={`toast toast--${t.type}`}>{t.message}</div>
+                    ))}
+                </div>
+            )}
+            {toasts.filter(t => t.side === 'right').length > 0 && (
+                <div className="toast-container toast-container--right">
+                    {toasts.filter(t => t.side === 'right').map(t => (
+                        <div key={t.id} className={`toast toast--${t.type}`}>{t.message}</div>
+                    ))}
+                </div>
+            )}
+
             <div className="player-stage">
                 <div className="player-wrapper">
                     <YouTube
@@ -102,6 +139,17 @@ export default function Player() {
                     />
                 </div>
             </div>
+
+            {inRoom && (
+                <UserList
+                    room={room}
+                    socketId={socketId}
+                    onChangeName={emitChangeName}
+                    onKick={handleKick}
+                    onGrantControl={emitGrantControl}
+                />
+            )}
+
             <div className="bottom-bar">
                 {!inRoom ? (
                     <div className="room-controls">
@@ -129,6 +177,7 @@ export default function Player() {
                     <div className="room-info">
                         <span className="room-code">Code: <strong>{room.id}</strong></span>
                         <span className="room-status">{isHost ? 'Host' : 'Guest'} · {room.users.length} online</span>
+                        <button className="room-btn room-btn--leave" onClick={leaveRoom}>Leave</button>
                     </div>
                 )}
                 <form className="url-form" onSubmit={handleUrlSubmit}>
@@ -136,10 +185,10 @@ export default function Player() {
                         className="url-input"
                         value={urlInput}
                         onChange={e => setUrlInput(e.target.value)}
-                        placeholder={inRoom && !isHost ? 'Only the host can change the video' : 'Paste a YouTube URL…'}
-                        disabled={inRoom && !isHost}
+                        placeholder={inRoom && !hasControl ? 'Only the host can change the video' : 'Paste a YouTube URL…'}
+                        disabled={inRoom && !hasControl}
                     />
-                    <button className="url-submit" type="submit" disabled={inRoom && !isHost}>
+                    <button className="url-submit" type="submit" disabled={inRoom && !hasControl}>
                         Load
                     </button>
                 </form>

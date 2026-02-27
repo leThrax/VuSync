@@ -12,7 +12,7 @@ app.use(express.json());
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: 'http://localhost:5173', // Vite default port
+        origin: true, // allow all origins in dev
         methods: ['GET', 'POST'],
     },
 });

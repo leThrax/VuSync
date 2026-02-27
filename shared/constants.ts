@@ -19,6 +19,10 @@ export const EVENTS = {
     // Connection
     USER_JOINED: 'user:joined',
     USER_LEFT: 'user:left',
+    CHANGE_NAME: 'user:changeName',
+    KICK_USER: 'user:kick',
+    KICKED: 'user:kicked',
+    GRANT_CONTROL: 'user:grantControl',
 } as const;
 
 export const DEFAULT_PORT = 3001;

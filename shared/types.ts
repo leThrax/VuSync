@@ -4,6 +4,7 @@ export interface User {
     id: string;
     name: string;
     roomId?: string;
+    canControl?: boolean;
 }
 
 export interface Room {
