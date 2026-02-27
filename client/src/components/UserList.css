@@ -1,0 +1,122 @@
+.user-list {
+    background: rgba(18, 18, 18, 0.88);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.user-list__entries {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.user-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 5px 6px;
+    border-radius: 6px;
+}
+
+.user-entry--me {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.user-entry__name {
+    font-size: 13px;
+    color: #aaa;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.user-entry--me .user-entry__name {
+    color: #fff;
+}
+
+.user-entry__badges {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+.badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.badge--host {
+    background: rgba(255, 160, 0, 0.15);
+    color: #ffa000;
+    border: 1px solid rgba(255, 160, 0, 0.25);
+}
+
+.badge--you {
+    background: rgba(74, 158, 255, 0.12);
+    color: #4a9eff;
+    border: 1px solid rgba(74, 158, 255, 0.22);
+}
+
+.badge--ctrl {
+    background: rgba(168, 85, 247, 0.12);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.user-entry--ctrl {
+    background: rgba(168, 85, 247, 0.05);
+}
+
+.user-entry[style*="pointer"]:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.name-form {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding-top: 8px;
+}
+
+.name-input {
+    width: 100%;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.name-input:focus {
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.name-input::placeholder {
+    color: #444;
+}
+
+.kick-btn {
+    background: none;
+    border: none;
+    color: #ff0000;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color 0.15s, background 0.15s;
+}
+
+.kick-btn:hover {
+    color: #810303;
+    background: rgba(255, 68, 68, 0.12);
+}
