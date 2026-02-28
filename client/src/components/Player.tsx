@@ -29,7 +29,7 @@ export default function Player() {
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
     }
 
-    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, createRoom, joinRoom, leaveRoom } =
+    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, programmaticSeekRef, createRoom, joinRoom, leaveRoom } =
         useSync(
             playerRef,
             setVideoId,
@@ -126,7 +126,11 @@ export default function Player() {
         if (room) {
             const state = room.playerState
             event.target.seekTo(state.currentTime, true)
-            if (!state.isPlaying) event.target.pauseVideo()
+            if (state.isPlaying) {
+                event.target.playVideo()
+            } else {
+                event.target.pauseVideo()
+            }
         }
     }
 
@@ -148,13 +152,22 @@ export default function Player() {
     }
 
     function handleStateChange(event: YouTubeEvent<number>) {
-        if (hasControl && prevStateRef.current === 2 && event.data === 3) {
-            // Seeking: cancel the pending pause (it was a seek-pause, not a real pause)
-            if (pauseEmitTimeoutRef.current !== null) {
-                clearTimeout(pauseEmitTimeoutRef.current)
-                pauseEmitTimeoutRef.current = null
+        if (prevStateRef.current === 2 && event.data === 3) {
+            if (hasControl) {
+                // Seeking: cancel the pending pause (it was a seek-pause, not a real pause)
+                if (pauseEmitTimeoutRef.current !== null) {
+                    clearTimeout(pauseEmitTimeoutRef.current)
+                    pauseEmitTimeoutRef.current = null
+                }
+                event.target.getCurrentTime().then((t: number) => emitSeek(t))
+            } else if (room && !programmaticSeekRef.current) {
+                // No-permission seek — snap back to the room's current position
+                const elapsed = room.playerState.isPlaying
+                    ? Math.max(0, (Date.now() - room.playerState.lastUpdated) / 1000)
+                    : 0
+                event.target.seekTo(room.playerState.currentTime + elapsed, true)
+                if (room.playerState.isPlaying) event.target.playVideo()
             }
-            event.target.getCurrentTime().then((t: number) => emitSeek(t))
         }
         prevStateRef.current = event.data
     }
@@ -253,88 +266,99 @@ export default function Player() {
 
             <div className="bottom-bar">
                 {!inRoom ? (
-                    <div className="room-controls">
-                        <button
-                            className="room-btn room-btn--create"
-                            onClick={handleCreateRoom}
-                            disabled={!isConnected}
-                        >
-                            Create room
-                        </button>
-                        <form className="room-join-form" onSubmit={handleJoinRoom}>
-                            <input
-                                className="room-join-input"
-                                value={joinInput}
-                                onChange={e => setJoinInput(e.target.value)}
-                                placeholder="Room code…"
+                    <>
+                        <div className="room-controls">
+                            <button
+                                className="room-btn room-btn--create"
+                                onClick={handleCreateRoom}
                                 disabled={!isConnected}
-                            />
-                            <button className="room-btn" type="submit" disabled={!isConnected}>
-                                Join
+                            >
+                                Create room
                             </button>
-                        </form>
-                    </div>
+                            <form className="room-join-form" onSubmit={handleJoinRoom}>
+                                <input
+                                    className="room-join-input"
+                                    value={joinInput}
+                                    onChange={e => setJoinInput(e.target.value)}
+                                    placeholder="Room code…"
+                                    disabled={!isConnected}
+                                />
+                                <button className="room-btn" type="submit" disabled={!isConnected}>
+                                    Join
+                                </button>
+                            </form>
+                        </div>
+                    </>
                 ) : (
-                    <div className="room-info">
-                        <span
-                            className="room-code room-code--clickable"
-                            onClick={() => {
-                                navigator.clipboard.writeText(room.id)
-                                addToast('Room code copied!', 'left')
-                            }}
-                            title="Click to copy"
-                        >Code: <strong>{room.id}</strong></span>
-                        <span className="room-status">{isHost ? 'Host' : 'Guest'} · {room.users.length} online</span>
-                        <button className="room-btn room-btn--leave" onClick={() => { addToast('Room left', 'left'); leaveRoom() }}>Leave</button>
-                    </div>
-                )}
-                <form className="url-form" onSubmit={handleUrlSubmit}>
-                    <input
-                        className="url-input"
-                        value={urlInput}
-                        onChange={e => setUrlInput(e.target.value)}
-                        placeholder={inRoom && !hasControl ? 'Only the host can change the video' : 'Paste a YouTube URL or playlist…'}
-                        disabled={inRoom && !hasControl}
-                    />
-                    <button className="url-submit" type="submit" disabled={(inRoom && !hasControl) || isValidating}>
-                        {isValidating ? 'Checking…' : 'Load'}
-                    </button>
-                </form>
-                {inRoom && hasControl && (
-                    <div className="queue-actions">
+                    <>
+                        <div className="bar-row">
+                            <div className="bar-row__center">
+                                <span
+                                    className="room-code room-code--clickable"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(room.id)
+                                        addToast('Room code copied!', 'left')
+                                    }}
+                                    title="Click to copy"
+                                >Code: <strong>{room.id}</strong></span>
+                                <form className="url-form" onSubmit={handleUrlSubmit}>
+                                    <input
+                                        className="url-input"
+                                        value={urlInput}
+                                        onChange={e => setUrlInput(e.target.value)}
+                                        placeholder={!hasControl ? 'Only the host can change the video' : 'Paste a YouTube URL or playlist…'}
+                                        disabled={!hasControl}
+                                    />
+                                    <button className="url-submit" type="submit" disabled={!hasControl || isValidating}>
+                                        {isValidating ? 'Checking…' : 'Load'}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div className="queue-row">
+                        <div className="queue-actions">
+                            <button
+                                type="button"
+                                className="queue-btn"
+                                onClick={handleQueueNext}
+                                disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
+                            >
+                                Queue next
+                            </button>
+                            <button
+                                type="button"
+                                className="queue-btn"
+                                onClick={handleQueueLast}
+                                disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
+                            >
+                                Queue last
+                            </button>
+                            <button
+                                type="button"
+                                className="queue-btn queue-btn--clear"
+                                onClick={() => { emitQueueClear(); addToast('Queue cleared', 'left') }}
+                                disabled={!hasControl || room.queue.length === 0}
+                            >
+                                Clear queue
+                            </button>
+                            <button
+                                type="button"
+                                className="queue-btn queue-btn--skip"
+                                onClick={() => emitQueueAdvance()}
+                                disabled={!hasControl || room.queue.length === 0}
+                            >
+                                Skip
+                            </button>
+                        </div>
                         <button
                             type="button"
-                            className="queue-btn"
-                            onClick={handleQueueNext}
-                            disabled={(!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
+                            className="room-btn room-btn--leave bar-row__leave"
+                            onClick={() => { addToast('Room left', 'left'); leaveRoom() }}
                         >
-                            Queue next
+                            Leave
                         </button>
-                        <button
-                            type="button"
-                            className="queue-btn"
-                            onClick={handleQueueLast}
-                            disabled={(!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
-                        >
-                            Queue last
-                        </button>
-                        <button
-                            type="button"
-                            className="queue-btn queue-btn--clear"
-                            onClick={() => { emitQueueClear(); addToast('Queue cleared', 'left') }}
-                            disabled={room.queue.length === 0}
-                        >
-                            Clear queue
-                        </button>
-                        <button
-                            type="button"
-                            className="queue-btn queue-btn--skip"
-                            onClick={() => emitQueueAdvance()}
-                            disabled={room.queue.length === 0}
-                        >
-                            Skip
-                        </button>
-                    </div>
+                        </div>
+                    </>
                 )}
             </div>
         </div>

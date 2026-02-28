@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { RefObject } from 'react'
+import type { RefObject, MutableRefObject } from 'react'
 import type { YouTubePlayer } from 'react-youtube'
 import { socket } from '../socket'
 import { EVENTS } from '../../../shared/constants'
@@ -24,6 +24,7 @@ export interface UseSyncReturn {
     emitQueueAddBulk: (items: QueueItem[], position: 'next' | 'last') => void
     emitQueueClear: () => void
     emitQueueAdvance: () => void
+    programmaticSeekRef: MutableRefObject<boolean>
     createRoom: (roomName: string, userName: string) => void
     joinRoom: (roomId: string, userName: string) => void
     leaveRoom: () => void
@@ -52,6 +53,8 @@ export function useSync(
     useEffect(() => { onUserJoinedRef.current = onUserJoined }, [onUserJoined])
     // Tracks whether we're currently in a room (used to detect the initial join)
     const inRoomRef = useRef(false)
+    // Flags a seekTo call made by a sync handler so handleStateChange can ignore the resulting 2→3 transition
+    const programmaticSeekRef = useRef(false)
 
     useEffect(() => {
         socket.connect()
@@ -78,6 +81,20 @@ export function useSync(
                     : updated
                 setRoom(synced)
                 onVideoChangeRef.current(updated.playerState.videoId)
+
+                if (updated.playerState.isPlaying) {
+                    const joinTime = Date.now()
+                    const baseTime = synced.playerState.currentTime
+                    setTimeout(() => {
+                        const player = playerRef.current
+                        if (!player) return
+                        const additionalElapsed = (Date.now() - joinTime) / 1000
+                        programmaticSeekRef.current = true
+                        setTimeout(() => { programmaticSeekRef.current = false }, 500)
+                        player.seekTo(baseTime + additionalElapsed, true)
+                        player.playVideo()
+                    }, 500)
+                }
                 return
             }
 
@@ -87,6 +104,8 @@ export function useSync(
         async function onPlay(state: PlayerState) {
             const player = playerRef.current
             if (!player) return
+            programmaticSeekRef.current = true
+            setTimeout(() => { programmaticSeekRef.current = false }, 500)
             const currentTime: number = await player.getCurrentTime()
             if (Math.abs(currentTime - state.currentTime) > SYNC_THRESHOLD) {
                 player.seekTo(state.currentTime, true)
@@ -97,6 +116,8 @@ export function useSync(
         async function onPause(state: PlayerState) {
             const player = playerRef.current
             if (!player) return
+            programmaticSeekRef.current = true
+            setTimeout(() => { programmaticSeekRef.current = false }, 500)
             const currentTime: number = await player.getCurrentTime()
             if (Math.abs(currentTime - state.currentTime) > SYNC_THRESHOLD) {
                 player.seekTo(state.currentTime, true)
@@ -107,6 +128,8 @@ export function useSync(
         async function onSeek(state: PlayerState) {
             const player = playerRef.current
             if (!player) return
+            programmaticSeekRef.current = true
+            setTimeout(() => { programmaticSeekRef.current = false }, 500)
             const currentTime: number = await player.getCurrentTime()
             if (Math.abs(currentTime - state.currentTime) > SYNC_THRESHOLD) {
                 player.seekTo(state.currentTime, true)
@@ -134,6 +157,8 @@ export function useSync(
         async function onSyncState(state: PlayerState) {
             const player = playerRef.current
             if (!player) return
+            programmaticSeekRef.current = true
+            setTimeout(() => { programmaticSeekRef.current = false }, 500)
             const currentTime: number = await player.getCurrentTime()
             if (Math.abs(currentTime - state.currentTime) > SYNC_THRESHOLD) {
                 player.seekTo(state.currentTime, true)
@@ -246,5 +271,5 @@ export function useSync(
         setRoom(null)
     }
 
-    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, createRoom, joinRoom, leaveRoom }
+    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
 }

@@ -24,6 +24,9 @@ export default function UserList({ room, socketId, onChangeName, onKick, onGrant
 
     return (
         <div className="user-list">
+            <div className="user-list__status">
+                {currentUserIsHost ? 'Host' : 'Guest'} · {room.users.length} online
+            </div>
             <div className="user-list__entries">
                 {room.users.map(user => {
                     const isHost = user.id === room.hostId

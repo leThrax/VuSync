@@ -6,6 +6,12 @@
     padding: 10px;
 }
 
+.user-list__status {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
 .user-list__entries {
     display: flex;
     flex-direction: column;
@@ -76,7 +82,7 @@
 }
 
 .user-entry[style*="pointer"]:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(104, 104, 104, 0.43);
 }
 
 .name-form {
