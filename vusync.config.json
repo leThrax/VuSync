@@ -4,5 +4,8 @@
   },
   "client": {
     "port": 5173
+  },
+  "youtube": {
+    "apiKey": ""
   }
 }

@@ -35,9 +35,56 @@ app.get('/api/check-video/:videoId', async (req, res) => {
     }
 });
 
-// Fetch playlist items via YouTube's public RSS/Atom feed (no API key needed)
+// Fetch playlist items — uses YouTube Data API v3 if an apiKey is configured
+// (full pagination, no 15-video cap), otherwise falls back to the public RSS feed.
 app.get('/api/playlist/:playlistId', async (req, res) => {
     const { playlistId } = req.params;
+
+    // --- Strategy A: YouTube Data API v3 (requires apiKey) ---
+    if (config.youtube.apiKey) {
+        try {
+            const videos: { videoId: string; title: string }[] = [];
+            let pageToken: string | undefined;
+
+            do {
+                const url = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
+                url.searchParams.set('part', 'snippet');
+                url.searchParams.set('maxResults', '50');
+                url.searchParams.set('playlistId', playlistId);
+                url.searchParams.set('key', config.youtube.apiKey);
+                if (pageToken) url.searchParams.set('pageToken', pageToken);
+
+                const apiRes = await fetch(url.toString());
+
+                // Bad key, quota exceeded, or other API error — fall through to RSS
+                if (!apiRes.ok) break;
+
+                const data = await apiRes.json() as {
+                    items: { snippet: { title: string; resourceId: { videoId: string } } }[];
+                    nextPageToken?: string;
+                };
+
+                for (const item of data.items) {
+                    const title = item.snippet.title;
+                    // Skip deleted/private placeholders
+                    if (title === 'Deleted video' || title === 'Private video') continue;
+                    videos.push({ videoId: item.snippet.resourceId.videoId, title });
+                }
+
+                pageToken = data.nextPageToken;
+            } while (pageToken);
+
+            if (videos.length > 0) {
+                res.json({ available: true, videos });
+                return;
+            }
+            // If we got 0 usable videos (e.g. all private) also fall through to RSS
+        } catch {
+            // Network/parse error — fall through to RSS
+        }
+    }
+
+    // --- Strategy B: public RSS/Atom feed fallback (≤15 videos, no key needed) ---
     try {
         const feedRes = await fetch(
             `https://www.youtube.com/feeds/videos.xml?playlist_id=${encodeURIComponent(playlistId)}`

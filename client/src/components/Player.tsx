@@ -321,7 +321,7 @@ export default function Player() {
                         <button
                             type="button"
                             className="queue-btn queue-btn--clear"
-                            onClick={() => emitQueueClear()}
+                            onClick={() => { emitQueueClear(); addToast('Queue cleared', 'left') }}
                             disabled={room.queue.length === 0}
                         >
                             Clear queue

@@ -26,6 +26,7 @@
     flex-direction: column;
     gap: 6px;
     overflow-y: auto;
+    max-height: 594px; /* 15 items × 34px thumb + 14 gaps × 6px */
     scrollbar-width: thin;
     scrollbar-color: #333 transparent;
 }
