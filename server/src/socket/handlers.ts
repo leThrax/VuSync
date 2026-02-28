@@ -124,6 +124,19 @@ export function setupSocketHandlers(io: Server): void {
             }
         })
 
+        socket.on(EVENTS.QUEUE_ADD_BULK, (payload: { roomId: string; items: QueueItem[]; position: 'next' | 'last' }) => {
+            const room = rooms.get(payload.roomId)
+            if (!room || !hasControl(room) || !payload.items?.length) return
+            if (payload.position === 'next') {
+                room.queue = [...payload.items, ...room.queue]
+            } else {
+                room.queue = [...room.queue, ...payload.items]
+            }
+            for (const u of room.users) {
+                io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+            }
+        })
+
         socket.on(EVENTS.QUEUE_CLEAR, (payload: { roomId: string }) => {
             const room = rooms.get(payload.roomId)
             if (!room || !hasControl(room)) return

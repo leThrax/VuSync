@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import { DEFAULT_PORT } from '../../shared/constants';
+import { config } from './config';
 import { setupSocketHandlers } from './socket/handlers';
 
 const app = express();
@@ -35,9 +35,44 @@ app.get('/api/check-video/:videoId', async (req, res) => {
     }
 });
 
+// Fetch playlist items via YouTube's public RSS/Atom feed (no API key needed)
+app.get('/api/playlist/:playlistId', async (req, res) => {
+    const { playlistId } = req.params;
+    try {
+        const feedRes = await fetch(
+            `https://www.youtube.com/feeds/videos.xml?playlist_id=${encodeURIComponent(playlistId)}`
+        );
+        if (!feedRes.ok) {
+            res.json({ available: false, videos: [] });
+            return;
+        }
+        const xml = await feedRes.text();
+        const videos: { videoId: string; title: string }[] = [];
+        const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+        let match;
+        while ((match = entryRegex.exec(xml)) !== null) {
+            const entry = match[1];
+            const videoIdMatch = entry.match(/<yt:videoId>(.*?)<\/yt:videoId>/);
+            const titleMatch = entry.match(/<title>(.*?)<\/title>/);
+            if (videoIdMatch && titleMatch) {
+                const title = titleMatch[1]
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'");
+                videos.push({ videoId: videoIdMatch[1], title });
+            }
+        }
+        res.json({ available: videos.length > 0, videos });
+    } catch {
+        res.json({ available: false, videos: [] });
+    }
+});
+
 // Setup WebSocket handlers
 setupSocketHandlers(io);
 
-httpServer.listen(DEFAULT_PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${DEFAULT_PORT}`);
+httpServer.listen(config.server.port, () => {
+    console.log(`🚀 Server running on http://localhost:${config.server.port}`);
 });

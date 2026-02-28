@@ -15,6 +15,7 @@ export const EVENTS = {
 
     // Queue
     QUEUE_ADD: 'queue:add',
+    QUEUE_ADD_BULK: 'queue:addBulk',
     QUEUE_CLEAR: 'queue:clear',
     QUEUE_ADVANCE: 'queue:advance',
 

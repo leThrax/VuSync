@@ -4,7 +4,8 @@ import type { YouTubeEvent } from 'react-youtube'
 import type { YouTubePlayer } from 'react-youtube'
 import { useSync } from '../hooks/useSync'
 import { SERVER_URL } from '../socket'
-import { extractVideoId } from '../utils'
+import { extractVideoId, extractPlaylistId } from '../utils'
+import type { QueueItem } from '../../../shared/types'
 import UserList from './UserList'
 import QueuePanel from './QueuePanel'
 import './Player.css'
@@ -28,7 +29,7 @@ export default function Player() {
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
     }
 
-    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueClear, emitQueueAdvance, createRoom, joinRoom, leaveRoom } =
+    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, createRoom, joinRoom, leaveRoom } =
         useSync(
             playerRef,
             setVideoId,
@@ -56,7 +57,31 @@ export default function Player() {
         }
     }
 
+    async function fetchPlaylist(playlistId: string): Promise<{ available: boolean; videos: QueueItem[] }> {
+        setIsValidating(true)
+        try {
+            const res = await fetch(`${SERVER_URL}/api/playlist/${encodeURIComponent(playlistId)}`)
+            return await res.json() as { available: boolean; videos: QueueItem[] }
+        } catch {
+            return { available: false, videos: [] }
+        } finally {
+            setIsValidating(false)
+        }
+    }
+
     async function handleQueueNext() {
+        const playlistId = extractPlaylistId(urlInput)
+        if (playlistId) {
+            const result = await fetchPlaylist(playlistId)
+            if (!result.available) {
+                addToast('No playlist found at this URL', 'left', 'danger')
+                return
+            }
+            setUrlInput('')
+            emitQueueAddBulk(result.videos, 'next')
+            addToast(`Added ${result.videos.length} video${result.videos.length === 1 ? '' : 's'} to queue`, 'left')
+            return
+        }
         const id = extractVideoId(urlInput)
         if (!id) return
         if (!await validateVideo(id)) {
@@ -68,6 +93,18 @@ export default function Player() {
     }
 
     async function handleQueueLast() {
+        const playlistId = extractPlaylistId(urlInput)
+        if (playlistId) {
+            const result = await fetchPlaylist(playlistId)
+            if (!result.available) {
+                addToast('No playlist found at this URL', 'left', 'danger')
+                return
+            }
+            setUrlInput('')
+            emitQueueAddBulk(result.videos, 'last')
+            addToast(`Added ${result.videos.length} video${result.videos.length === 1 ? '' : 's'} to queue`, 'left')
+            return
+        }
         const id = extractVideoId(urlInput)
         if (!id) return
         if (!await validateVideo(id)) {
@@ -124,6 +161,25 @@ export default function Player() {
 
     async function handleUrlSubmit(e: { preventDefault(): void }) {
         e.preventDefault()
+        const playlistId = extractPlaylistId(urlInput)
+        if (playlistId) {
+            const result = await fetchPlaylist(playlistId)
+            if (!result.available) {
+                addToast('No playlist found at this URL', 'left', 'danger')
+                return
+            }
+            const [first, ...rest] = result.videos
+            if (!first) return
+            setUrlInput('')
+            if (room) {
+                emitChangeVideo(first.videoId)
+            }
+            setVideoId(first.videoId)
+            if (rest.length > 0 && room) {
+                emitQueueAddBulk(rest, 'next')
+            }
+            return
+        }
         const id = extractVideoId(urlInput)
         if (!id) return
         if (!await validateVideo(id)) {
@@ -133,10 +189,8 @@ export default function Player() {
         setUrlInput('')
         if (room) {
             emitChangeVideo(id)
-            setVideoId(id)
-        } else {
-            setVideoId(id)
         }
+        setVideoId(id)
     }
 
     function handleCreateRoom() {
@@ -239,7 +293,7 @@ export default function Player() {
                         className="url-input"
                         value={urlInput}
                         onChange={e => setUrlInput(e.target.value)}
-                        placeholder={inRoom && !hasControl ? 'Only the host can change the video' : 'Paste a YouTube URL…'}
+                        placeholder={inRoom && !hasControl ? 'Only the host can change the video' : 'Paste a YouTube URL or playlist…'}
                         disabled={inRoom && !hasControl}
                     />
                     <button className="url-submit" type="submit" disabled={(inRoom && !hasControl) || isValidating}>
@@ -252,7 +306,7 @@ export default function Player() {
                             type="button"
                             className="queue-btn"
                             onClick={handleQueueNext}
-                            disabled={!extractVideoId(urlInput) || isValidating}
+                            disabled={(!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
                         >
                             Queue next
                         </button>
@@ -260,7 +314,7 @@ export default function Player() {
                             type="button"
                             className="queue-btn"
                             onClick={handleQueueLast}
-                            disabled={!extractVideoId(urlInput) || isValidating}
+                            disabled={(!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
                         >
                             Queue last
                         </button>

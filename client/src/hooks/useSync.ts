@@ -3,7 +3,7 @@ import type { RefObject } from 'react'
 import type { YouTubePlayer } from 'react-youtube'
 import { socket } from '../socket'
 import { EVENTS } from '../../../shared/constants'
-import type { Room, PlayerState } from '../../../shared/types'
+import type { Room, PlayerState, QueueItem } from '../../../shared/types'
 
 const SYNC_THRESHOLD = 1 // seconds — only seek if drift exceeds this
 
@@ -21,6 +21,7 @@ export interface UseSyncReturn {
     emitKickUser: (targetId: string) => void
     emitGrantControl: (targetId: string) => void
     emitQueueAdd: (videoId: string, position: 'next' | 'last') => void
+    emitQueueAddBulk: (items: QueueItem[], position: 'next' | 'last') => void
     emitQueueClear: () => void
     emitQueueAdvance: () => void
     createRoom: (roomName: string, userName: string) => void
@@ -223,6 +224,11 @@ export function useSync(
         socket.emit(EVENTS.QUEUE_ADD, { roomId: room.id, videoId, position })
     }
 
+    function emitQueueAddBulk(items: QueueItem[], position: 'next' | 'last') {
+        if (!room || !hasControl) return
+        socket.emit(EVENTS.QUEUE_ADD_BULK, { roomId: room.id, items, position })
+    }
+
     function emitQueueClear() {
         if (!room || !hasControl) return
         socket.emit(EVENTS.QUEUE_CLEAR, { roomId: room.id })
@@ -240,5 +246,5 @@ export function useSync(
         setRoom(null)
     }
 
-    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueClear, emitQueueAdvance, createRoom, joinRoom, leaveRoom }
+    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, createRoom, joinRoom, leaveRoom }
 }
