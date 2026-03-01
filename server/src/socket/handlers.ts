@@ -180,6 +180,19 @@ export function setupSocketHandlers(io: Server): void {
             }
         })
 
+        socket.on(EVENTS.QUEUE_REORDER, (payload: { roomId: string; fromIndex: number; toIndex: number }) => {
+            const room = rooms.get(payload.roomId)
+            if (!room || !hasControl(room)) return
+            const { fromIndex, toIndex } = payload
+            if (fromIndex < 0 || fromIndex >= room.queue.length) return
+            if (toIndex < 0 || toIndex >= room.queue.length) return
+            const [item] = room.queue.splice(fromIndex, 1)
+            room.queue.splice(toIndex, 0, item)
+            for (const u of room.users) {
+                io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+            }
+        })
+
         socket.on(EVENTS.GRANT_CONTROL, (payload: { roomId: string; targetId: string }) => {
             const room = rooms.get(payload.roomId)
             if (!room || room.hostId !== socket.id) return

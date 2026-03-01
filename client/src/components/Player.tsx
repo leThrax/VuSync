@@ -31,7 +31,7 @@ export default function Player() {
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
     }
 
-    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, programmaticSeekRef, createRoom, joinRoom, leaveRoom } =
+    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, programmaticSeekRef, createRoom, joinRoom, leaveRoom } =
         useSync(
             playerRef,
             setVideoId,
@@ -342,6 +342,7 @@ export default function Player() {
                         hasControl={hasControl}
                         onRemove={emitQueueRemove}
                         onPlayItem={emitQueuePlayItem}
+                        onReorder={emitQueueReorder}
                     />
                 )}
             </div>

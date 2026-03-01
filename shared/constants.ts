@@ -20,6 +20,7 @@ export const EVENTS = {
     QUEUE_ADVANCE: 'queue:advance',
     QUEUE_REMOVE: 'queue:remove',
     QUEUE_PLAY_ITEM: 'queue:playItem',
+    QUEUE_REORDER: 'queue:reorder',
 
     // Chat
     CHAT_MESSAGE: 'chat:message',

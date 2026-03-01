@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react'
 import type { QueueItem } from '../../../shared/types'
 import './QueuePanel.css'
 
@@ -6,9 +7,13 @@ interface QueuePanelProps {
     hasControl?: boolean
     onRemove?: (index: number) => void
     onPlayItem?: (index: number) => void
+    onReorder?: (fromIndex: number, toIndex: number) => void
 }
 
-export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem }: QueuePanelProps) {
+export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder }: QueuePanelProps) {
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+    const dragIndexRef = useRef<number | null>(null)
+
     return (
         <div className="queue-panel">
             <div className="queue-panel__header">
@@ -19,7 +24,22 @@ export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem }: 
             ) : (
                 <div className="queue-panel__list">
                     {queue.map((item, i) => (
-                        <div key={`${item.videoId}-${i}`} className="queue-item">
+                        <div
+                            key={`${item.videoId}-${i}`}
+                            className={`queue-item${dragOverIndex === i ? ' queue-item--drag-over' : ''}`}
+                            draggable={hasControl}
+                            onDragStart={() => { dragIndexRef.current = i }}
+                            onDragOver={e => { e.preventDefault(); setDragOverIndex(i) }}
+                            onDragLeave={() => setDragOverIndex(null)}
+                            onDrop={e => {
+                                e.preventDefault()
+                                const from = dragIndexRef.current
+                                if (from !== null && from !== i) onReorder?.(from, i)
+                                setDragOverIndex(null)
+                                dragIndexRef.current = null
+                            }}
+                            onDragEnd={() => { setDragOverIndex(null); dragIndexRef.current = null }}
+                        >
                             <img
                                 className="queue-item__thumb"
                                 src={`https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`}

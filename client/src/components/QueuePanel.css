@@ -37,6 +37,20 @@
     align-items: center;
     gap: 8px;
     position: relative;
+    border-top: 2px solid transparent;
+    transition: border-color 0.1s;
+}
+
+.queue-item[draggable="true"] {
+    cursor: grab;
+}
+
+.queue-item[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.queue-item--drag-over {
+    border-top-color: rgba(167, 139, 250, 0.6);
 }
 
 .queue-item__thumb {
