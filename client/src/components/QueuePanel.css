@@ -1,4 +1,5 @@
 .queue-panel {
+    width: 320px;
     background: rgba(18, 18, 18, 0.88);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.07);
@@ -10,7 +11,7 @@
 }
 
 .queue-panel__header {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: #555;
     text-transform: uppercase;
@@ -48,26 +49,29 @@
 }
 
 .queue-item__title {
-    font-size: 11px;
+    font-size: 13px;
     color: #aaa;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
+    flex: 1;
     line-height: 1.3;
 }
 
 .queue-item__actions {
     display: flex;
     gap: 4px;
-    margin-left: auto;
+    flex-shrink: 0;
+    max-width: 0;
+    overflow: hidden;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s;
-    flex-shrink: 0;
+    transition: max-width 0.15s, opacity 0.15s;
 }
 
 .queue-item:hover .queue-item__actions {
+    max-width: 100px;
     opacity: 1;
     pointer-events: auto;
 }
@@ -78,7 +82,7 @@
     border-radius: 4px;
     color: #aaa;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 11px;
     padding: 3px 6px;
     line-height: 1;
     transition: background 0.1s, color 0.1s;
@@ -95,7 +99,7 @@
 }
 
 .queue-empty {
-    font-size: 11px;
+    font-size: 13px;
     color: #444;
     text-align: center;
     margin: 4px 0 2px;

@@ -195,7 +195,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: 250px;
+    align-items: flex-end;
     z-index: 10;
     max-height: calc(100vh - 32px);
 }
