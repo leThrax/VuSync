@@ -13,7 +13,7 @@
 }
 
 .player-wrapper {
-    width: min(90vw, 1100px);
+    width: min(98vw, 1760px);
     aspect-ratio: 16 / 9;
     border-radius: 14px;
     overflow: hidden;
