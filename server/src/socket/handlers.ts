@@ -159,6 +159,27 @@ export function setupSocketHandlers(io: Server): void {
             }
         })
 
+        socket.on(EVENTS.QUEUE_REMOVE, (payload: { roomId: string; index: number }) => {
+            const room = rooms.get(payload.roomId)
+            if (!room || !hasControl(room)) return
+            room.queue.splice(payload.index, 1)
+            for (const u of room.users) {
+                io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+            }
+        })
+
+        socket.on(EVENTS.QUEUE_PLAY_ITEM, (payload: { roomId: string; index: number }) => {
+            const room = rooms.get(payload.roomId)
+            if (!room || !hasControl(room)) return
+            const [item] = room.queue.splice(payload.index, 1)
+            if (!item) return
+            room.playerState = { isPlaying: false, currentTime: 0, videoId: item.videoId, lastUpdated: Date.now() }
+            io.to(payload.roomId).emit(EVENTS.CHANGE_VIDEO, room.playerState)
+            for (const u of room.users) {
+                io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+            }
+        })
+
         socket.on(EVENTS.GRANT_CONTROL, (payload: { roomId: string; targetId: string }) => {
             const room = rooms.get(payload.roomId)
             if (!room || room.hostId !== socket.id) return

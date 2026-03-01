@@ -3,9 +3,12 @@ import './QueuePanel.css'
 
 interface QueuePanelProps {
     queue: QueueItem[]
+    hasControl?: boolean
+    onRemove?: (index: number) => void
+    onPlayItem?: (index: number) => void
 }
 
-export default function QueuePanel({ queue }: QueuePanelProps) {
+export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem }: QueuePanelProps) {
     return (
         <div className="queue-panel">
             <div className="queue-panel__header">
@@ -23,6 +26,20 @@ export default function QueuePanel({ queue }: QueuePanelProps) {
                                 alt=""
                             />
                             <span className="queue-item__title">{item.title}</span>
+                            {hasControl && (
+                                <div className="queue-item__actions">
+                                    <button
+                                        className="queue-item__btn queue-item__btn--play"
+                                        onClick={() => onPlayItem?.(i)}
+                                        title="Play now"
+                                    >▶</button>
+                                    <button
+                                        className="queue-item__btn queue-item__btn--remove"
+                                        onClick={() => onRemove?.(i)}
+                                        title="Remove"
+                                    >✕</button>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

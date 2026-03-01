@@ -18,6 +18,8 @@ export const EVENTS = {
     QUEUE_ADD_BULK: 'queue:addBulk',
     QUEUE_CLEAR: 'queue:clear',
     QUEUE_ADVANCE: 'queue:advance',
+    QUEUE_REMOVE: 'queue:remove',
+    QUEUE_PLAY_ITEM: 'queue:playItem',
 
     // Chat
     CHAT_MESSAGE: 'chat:message',
