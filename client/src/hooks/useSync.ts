@@ -87,15 +87,25 @@ export function useSync(
                 if (updated.playerState.isPlaying) {
                     const joinTime = Date.now()
                     const baseTime = synced.playerState.currentTime
-                    setTimeout(() => {
+                    let attempts = 0
+                    const tryInitialSync = () => {
                         const player = playerRef.current
-                        if (!player) return
+                        if (!player) {
+                            if (++attempts < 15) setTimeout(tryInitialSync, 200)
+                            return
+                        }
                         const additionalElapsed = (Date.now() - joinTime) / 1000
+                        const wasMuted = player.isMuted()
                         programmaticSeekRef.current = true
                         setTimeout(() => { programmaticSeekRef.current = false }, 500)
+                        // mute BEFORE seekTo: seekTo on a cued player triggers playback;
+                        // must be muted first so that triggered play is already muted.
+                        player.mute()
                         player.seekTo(baseTime + additionalElapsed, true)
                         player.playVideo()
-                    }, 500)
+                        if (!wasMuted) setTimeout(() => { player.unMute() }, 500)
+                    }
+                    setTimeout(tryInitialSync, 500)
                 }
                 return
             }

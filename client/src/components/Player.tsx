@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import YouTube from 'react-youtube'
 import type { YouTubeEvent } from 'react-youtube'
 import type { YouTubePlayer } from 'react-youtube'
@@ -22,6 +22,7 @@ export default function Player() {
     const prevStateRef = useRef(-1)
     const toastIdRef = useRef(0)
     const pauseEmitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const pendingRoomRef = useRef<string | null>(null)
 
     function addToast(message: string, side: 'left' | 'right', type: 'danger' | 'success' = 'success') {
         const id = ++toastIdRef.current
@@ -38,6 +39,34 @@ export default function Player() {
             () => addToast('Joined the room', 'left'),
             (userName) => addToast(`${userName} joined the room`, 'left'),
         )
+
+    // Always-current ref for room — avoids stale closures in YouTube event callbacks
+    const roomRef = useRef(room)
+    roomRef.current = room
+
+    // Read room code from URL on mount
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const roomId = params.get('room')
+        if (roomId) pendingRoomRef.current = roomId
+    }, [])
+
+    // Auto-join once socket is connected
+    useEffect(() => {
+        if (isConnected && pendingRoomRef.current && !room) {
+            joinRoom(pendingRoomRef.current, '')
+            pendingRoomRef.current = null
+        }
+    }, [isConnected, room])
+
+    // Keep URL in sync with room state
+    useEffect(() => {
+        if (room) {
+            window.history.replaceState(null, '', `?room=${room.id}`)
+        } else {
+            window.history.replaceState(null, '', '/')
+        }
+    }, [room])
 
     function handleKick(targetId: string) {
         emitKickUser(targetId)
@@ -123,14 +152,30 @@ export default function Player() {
 
     function handleReady(event: YouTubeEvent) {
         playerRef.current = event.target
-        if (room) {
-            const state = room.playerState
-            event.target.seekTo(state.currentTime, true)
-            if (state.isPlaying) {
-                event.target.playVideo()
-            } else {
-                event.target.pauseVideo()
-            }
+        const currentRoom = roomRef.current
+        if (currentRoom) {
+            const state = currentRoom.playerState
+            // setTimeout(0): react-youtube's updateVideo() queues a cueVideoById call via a
+            // resolved Promise (.then microtask). Microtasks run before macrotasks, so by the
+            // time this callback fires, cueVideoById has already been sent to the iframe and
+            // the video is correctly cued — our seekTo/playVideo then run last, not overridden.
+            setTimeout(() => {
+                programmaticSeekRef.current = true
+                setTimeout(() => { programmaticSeekRef.current = false }, 500)
+                if (state.isPlaying) {
+                    // mute BEFORE seekTo: seekTo on a VIDEO_CUED player triggers playback
+                    // immediately — if unmuted at that moment, the browser blocks it (no user
+                    // gesture on URL-join). Muting first ensures the triggered play is muted.
+                    const wasMuted = event.target.isMuted()
+                    event.target.mute()
+                    event.target.seekTo(state.currentTime, true)
+                    event.target.playVideo()
+                    if (!wasMuted) setTimeout(() => { event.target.unMute() }, 500)
+                } else {
+                    event.target.seekTo(state.currentTime, true)
+                    event.target.pauseVideo()
+                }
+            }, 0)
         }
     }
 
@@ -325,7 +370,17 @@ export default function Player() {
                                 <span
                                     className="room-code room-code--clickable"
                                     onClick={() => {
-                                        navigator.clipboard.writeText(room.id)
+                                        if (navigator.clipboard) {
+                                            navigator.clipboard.writeText(room.id)
+                                        } else {
+                                            const el = document.createElement('textarea')
+                                            el.value = room.id
+                                            el.style.cssText = 'position:fixed;opacity:0'
+                                            document.body.appendChild(el)
+                                            el.select()
+                                            document.execCommand('copy')
+                                            document.body.removeChild(el)
+                                        }
                                         addToast('Room code copied!', 'left')
                                     }}
                                     title="Click to copy"
