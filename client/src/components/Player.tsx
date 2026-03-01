@@ -135,13 +135,35 @@ export default function Player() {
     }
 
     async function handlePlay(event: YouTubeEvent) {
-        if (!hasControl) return
+        if (!hasControl) {
+            if (room && !programmaticSeekRef.current) {
+                const elapsed = room.playerState.isPlaying
+                    ? Math.max(0, (Date.now() - room.playerState.lastUpdated) / 1000)
+                    : 0
+                programmaticSeekRef.current = true
+                setTimeout(() => { programmaticSeekRef.current = false }, 500)
+                event.target.seekTo(room.playerState.currentTime + elapsed, true)
+                if (!room.playerState.isPlaying) event.target.pauseVideo()
+            }
+            return
+        }
         const currentTime = await event.target.getCurrentTime()
         emitPlay(currentTime)
     }
 
     async function handlePause(event: YouTubeEvent) {
-        if (!hasControl) return
+        if (!hasControl) {
+            if (room && !programmaticSeekRef.current) {
+                const elapsed = room.playerState.isPlaying
+                    ? Math.max(0, (Date.now() - room.playerState.lastUpdated) / 1000)
+                    : 0
+                programmaticSeekRef.current = true
+                setTimeout(() => { programmaticSeekRef.current = false }, 500)
+                event.target.seekTo(room.playerState.currentTime + elapsed, true)
+                if (room.playerState.isPlaying) event.target.playVideo()
+            }
+            return
+        }
         const currentTime = await event.target.getCurrentTime()
         // Delay emission so a seek (state 2→3) can cancel this before it fires
         if (pauseEmitTimeoutRef.current !== null) clearTimeout(pauseEmitTimeoutRef.current)
@@ -152,7 +174,7 @@ export default function Player() {
     }
 
     function handleStateChange(event: YouTubeEvent<number>) {
-        if (prevStateRef.current === 2 && event.data === 3) {
+        if ((prevStateRef.current === 1 || prevStateRef.current === 2) && event.data === 3) {
             if (hasControl) {
                 // Seeking: cancel the pending pause (it was a seek-pause, not a real pause)
                 if (pauseEmitTimeoutRef.current !== null) {
@@ -165,6 +187,8 @@ export default function Player() {
                 const elapsed = room.playerState.isPlaying
                     ? Math.max(0, (Date.now() - room.playerState.lastUpdated) / 1000)
                     : 0
+                programmaticSeekRef.current = true
+                setTimeout(() => { programmaticSeekRef.current = false }, 500)
                 event.target.seekTo(room.playerState.currentTime + elapsed, true)
                 if (room.playerState.isPlaying) event.target.playVideo()
             }

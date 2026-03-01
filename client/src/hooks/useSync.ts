@@ -102,6 +102,7 @@ export function useSync(
         }
 
         async function onPlay(state: PlayerState) {
+            setRoom(prev => prev ? { ...prev, playerState: state } : null)
             const player = playerRef.current
             if (!player) return
             programmaticSeekRef.current = true
@@ -114,6 +115,7 @@ export function useSync(
         }
 
         async function onPause(state: PlayerState) {
+            setRoom(prev => prev ? { ...prev, playerState: state } : null)
             const player = playerRef.current
             if (!player) return
             programmaticSeekRef.current = true
@@ -126,6 +128,7 @@ export function useSync(
         }
 
         async function onSeek(state: PlayerState) {
+            setRoom(prev => prev ? { ...prev, playerState: state } : null)
             const player = playerRef.current
             if (!player) return
             programmaticSeekRef.current = true
