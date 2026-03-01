@@ -16,6 +16,7 @@ export default function Player() {
     const [videoId, setVideoId] = useState('dQw4w9WgXcQ')
     const [urlInput, setUrlInput] = useState('')
     const [joinInput, setJoinInput] = useState('')
+    const [nameInput, setNameInput] = useState(() => localStorage.getItem('vusync-username') ?? '')
     const [toasts, setToasts] = useState<Toast[]>([])
     const [isValidating, setIsValidating] = useState(false)
     const playerRef = useRef<YouTubePlayer | null>(null)
@@ -275,14 +276,20 @@ export default function Player() {
         setVideoId(id)
     }
 
+    function handleChangeName(name: string) {
+        localStorage.setItem('vusync-username', name)
+        setNameInput(name)
+        emitChangeName(name)
+    }
+
     function handleCreateRoom() {
-        createRoom('My Room', '')
+        createRoom('My Room', nameInput.trim())
     }
 
     function handleJoinRoom(e: { preventDefault(): void }) {
         e.preventDefault()
         if (!joinInput.trim()) return
-        joinRoom(joinInput.trim(), '')
+        joinRoom(joinInput.trim(), nameInput.trim())
         setJoinInput('')
     }
 
@@ -320,23 +327,24 @@ export default function Player() {
                 </div>
             </div>
 
-            {inRoom && (
-                <div className="right-panel">
-                    <UserList
-                        room={room}
-                        socketId={socketId}
-                        onChangeName={emitChangeName}
-                        onKick={handleKick}
-                        onGrantControl={emitGrantControl}
-                    />
+            <div className="right-panel">
+                <UserList
+                    room={room}
+                    socketId={socketId}
+                    currentName={nameInput}
+                    onChangeName={handleChangeName}
+                    onKick={handleKick}
+                    onGrantControl={emitGrantControl}
+                />
+                {inRoom && (
                     <QueuePanel
                         queue={room.queue}
                         hasControl={hasControl}
                         onRemove={emitQueueRemove}
                         onPlayItem={emitQueuePlayItem}
                     />
-                </div>
-            )}
+                )}
+            </div>
 
             <div className="bottom-bar">
                 {!inRoom ? (
