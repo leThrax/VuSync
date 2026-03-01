@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io'
 import { EVENTS } from '../../../shared/constants'
 import type { Room, User, PlayerState, ChatMessage } from '../../../shared/types'
+import { config } from '../config'
 
 async function fetchVideoTitle(videoId: string): Promise<string> {
     try {
@@ -37,7 +38,7 @@ export function setupSocketHandlers(io: Server): void {
                 playerState: {
                     isPlaying: false,
                     currentTime: 0,
-                    videoId: 'dQw4w9WgXcQ',
+                    videoId: config.defaultVideoId,
                     lastUpdated: Date.now(),
                 },
                 queue: [],
