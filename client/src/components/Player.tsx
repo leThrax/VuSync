@@ -8,12 +8,13 @@ import { extractVideoId, extractPlaylistId } from '../utils'
 import type { QueueItem } from '../../../shared/types'
 import UserList from './UserList'
 import QueuePanel from './QueuePanel'
+import GradientText from './GradientText'
 import './Player.css'
 
 interface Toast { id: number; message: string; side: 'left' | 'right'; type: 'danger' | 'success' }
 
 export default function Player() {
-    const [videoId, setVideoId] = useState('dQw4w9WgXcQ')
+    const [videoId, setVideoId] = useState('')
     const [urlInput, setUrlInput] = useState('')
     const [joinInput, setJoinInput] = useState('')
     const [nameInput, setNameInput] = useState(() => localStorage.getItem('vusync-username') ?? '')
@@ -44,6 +45,16 @@ export default function Player() {
     // Always-current ref for room — avoids stale closures in YouTube event callbacks
     const roomRef = useRef(room)
     roomRef.current = room
+
+    // Fetch default video ID from server config on mount
+    useEffect(() => {
+        fetch(`${SERVER_URL}/api/config`)
+            .then(r => r.json())
+            .then((d: { defaultVideoId: string }) => {
+                if (d.defaultVideoId) setVideoId(d.defaultVideoId)
+            })
+            .catch(() => {})
+    }, [])
 
     // Read room code from URL on mount
     useEffect(() => {
@@ -314,16 +325,24 @@ export default function Player() {
 
             <div className="player-stage">
                 <div className="player-wrapper">
-                    <YouTube
-                        videoId={videoId}
-                        className="youtube-player"
-                        opts={{ width: '100%', height: '100%' }}
-                        onReady={handleReady}
-                        onPlay={handlePlay}
-                        onPause={handlePause}
-                        onStateChange={handleStateChange}
-                        onEnd={handleEnd}
-                    />
+                    {!videoId ? (
+                        <div className="vusync-placeholder">
+                            <div className="vusync-title-wrap">
+                                <GradientText>VuSync</GradientText>
+                            </div>
+                        </div>
+                    ) : (
+                        <YouTube
+                            videoId={videoId}
+                            className="youtube-player"
+                            opts={{ width: '100%', height: '100%' }}
+                            onReady={handleReady}
+                            onPlay={handlePlay}
+                            onPause={handlePause}
+                            onStateChange={handleStateChange}
+                            onEnd={handleEnd}
+                        />
+                    )}
                 </div>
             </div>
 

@@ -5,6 +5,7 @@ interface VuSyncConfig {
     server: { port: number };
     client: { port: number };
     youtube: { apiKey: string };
+    defaultVideoId: string;
 }
 
 const CONFIG_PATH = path.resolve(__dirname, '../../vusync.config.json');
@@ -16,11 +17,13 @@ function loadConfig(): VuSyncConfig {
             server?: { port?: number };
             client?: { port?: number };
             youtube?: { apiKey?: string };
+            defaultVideoId?: string;
         }>;
         return {
             server: { port: parsed.server?.port ?? 3001 },
             client: { port: parsed.client?.port ?? 5173 },
             youtube: { apiKey: parsed.youtube?.apiKey ?? '' },
+            defaultVideoId: parsed.defaultVideoId ?? '',
         };
     } catch {
         console.warn(`[config] Could not read ${CONFIG_PATH}, using defaults.`);
@@ -28,6 +31,7 @@ function loadConfig(): VuSyncConfig {
             server: { port: 3001 },
             client: { port: 5173 },
             youtube: { apiKey: '' },
+            defaultVideoId: '',
         };
     }
 }

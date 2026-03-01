@@ -22,6 +22,11 @@ app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: Date.now() });
 });
 
+// Client-safe config (never exposes the YouTube API key)
+app.get('/api/config', (_req, res) => {
+    res.json({ defaultVideoId: config.defaultVideoId });
+});
+
 // Validate a YouTube video ID by proxying YouTube's oEmbed API
 app.get('/api/check-video/:videoId', async (req, res) => {
     const { videoId } = req.params;
