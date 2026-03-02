@@ -13,8 +13,12 @@ import './Player.css'
 
 interface Toast { id: number; message: string; side: 'left' | 'right'; type: 'danger' | 'success' }
 
+const MIN_PLAYER_WIDTH = 600
+const MAX_PLAYER_WIDTH = 1760
+
 export default function Player() {
     const [videoId, setVideoId] = useState('')
+    const [playerWidth, setPlayerWidth] = useState(MAX_PLAYER_WIDTH)
     const [urlInput, setUrlInput] = useState('')
     const [joinInput, setJoinInput] = useState('')
     const [nameInput, setNameInput] = useState(() => localStorage.getItem('vusync-username') ?? '')
@@ -25,6 +29,9 @@ export default function Player() {
     const toastIdRef = useRef(0)
     const pauseEmitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const pendingRoomRef = useRef<string | null>(null)
+    const isResizingRef = useRef(false)
+    const resizeStartXRef = useRef(0)
+    const resizeStartWidthRef = useRef(0)
 
     function addToast(message: string, side: 'left' | 'right', type: 'danger' | 'success' = 'success') {
         const id = ++toastIdRef.current
@@ -287,6 +294,35 @@ export default function Player() {
         setVideoId(id)
     }
 
+    useEffect(() => {
+        function onMouseMove(e: MouseEvent) {
+            if (!isResizingRef.current) return
+            const dx = e.clientX - resizeStartXRef.current
+            setPlayerWidth(w => Math.max(MIN_PLAYER_WIDTH, Math.min(MAX_PLAYER_WIDTH, resizeStartWidthRef.current + dx * 2)))
+        }
+        function onMouseUp() {
+            if (!isResizingRef.current) return
+            isResizingRef.current = false
+            document.body.style.cursor = ''
+            document.body.style.userSelect = ''
+        }
+        window.addEventListener('mousemove', onMouseMove)
+        window.addEventListener('mouseup', onMouseUp)
+        return () => {
+            window.removeEventListener('mousemove', onMouseMove)
+            window.removeEventListener('mouseup', onMouseUp)
+        }
+    }, [])
+
+    function handleResizeMouseDown(e: React.MouseEvent) {
+        e.preventDefault()
+        isResizingRef.current = true
+        resizeStartXRef.current = e.clientX
+        resizeStartWidthRef.current = playerWidth
+        document.body.style.cursor = 'ew-resize'
+        document.body.style.userSelect = 'none'
+    }
+
     function handleChangeName(name: string) {
         localStorage.setItem('vusync-username', name)
         setNameInput(name)
@@ -324,25 +360,31 @@ export default function Player() {
             )}
 
             <div className="player-stage">
-                <div className="player-wrapper">
-                    {!videoId ? (
-                        <div className="vusync-placeholder">
-                            <div className="vusync-title-wrap">
-                                <GradientText>VuSync</GradientText>
+                <div
+                    className="player-resize-wrap"
+                    style={{ width: `min(${playerWidth}px, 98vw)` }}
+                >
+                    <div className="player-wrapper">
+                        {!videoId ? (
+                            <div className="vusync-placeholder">
+                                <div className="vusync-title-wrap">
+                                    <GradientText>VuSync</GradientText>
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <YouTube
-                            videoId={videoId}
-                            className="youtube-player"
-                            opts={{ width: '100%', height: '100%' }}
-                            onReady={handleReady}
-                            onPlay={handlePlay}
-                            onPause={handlePause}
-                            onStateChange={handleStateChange}
-                            onEnd={handleEnd}
-                        />
-                    )}
+                        ) : (
+                            <YouTube
+                                videoId={videoId}
+                                className="youtube-player"
+                                opts={{ width: '100%', height: '100%' }}
+                                onReady={handleReady}
+                                onPlay={handlePlay}
+                                onPause={handlePause}
+                                onStateChange={handleStateChange}
+                                onEnd={handleEnd}
+                            />
+                        )}
+                    </div>
+                    <div className="player-resize-handle" onMouseDown={handleResizeMouseDown} />
                 </div>
             </div>
 

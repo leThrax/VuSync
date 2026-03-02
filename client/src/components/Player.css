@@ -12,8 +12,38 @@
     padding: 24px;
 }
 
+.player-resize-wrap {
+    position: relative;
+}
+
+.player-resize-handle {
+    position: absolute;
+    right: -10px;
+    top: 15%;
+    height: 70%;
+    width: 20px;
+    cursor: ew-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+.player-resize-handle::after {
+    content: '';
+    width: 3px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.player-resize-handle:hover::after {
+    background: rgba(255, 255, 255, 0.45);
+}
+
 .player-wrapper {
-    width: min(98vw, 1760px);
+    width: 100%;
     aspect-ratio: 16 / 9;
     border-radius: 14px;
     overflow: hidden;
