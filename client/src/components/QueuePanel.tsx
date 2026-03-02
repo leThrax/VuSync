@@ -9,9 +9,11 @@ interface QueuePanelProps {
     onPlayItem?: (index: number) => void
     onReorder?: (fromIndex: number, toIndex: number) => void
     onShuffle?: () => void
+    onClear?: () => void
+    onSkip?: () => void
 }
 
-export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder, onShuffle }: QueuePanelProps) {
+export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder, onShuffle, onClear, onSkip }: QueuePanelProps) {
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
     const dragIndexRef = useRef<number | null>(null)
 
@@ -70,6 +72,20 @@ export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, on
                             )}
                         </div>
                     ))}
+                </div>
+            )}
+            {hasControl && (onClear || onSkip) && queue.length > 0 && (
+                <div className="queue-panel__footer">
+                    <button
+                        className="queue-panel__footer-btn queue-panel__footer-btn--skip"
+                        onClick={onSkip}
+                        title="Skip to next"
+                    >Skip</button>
+                    <button
+                        className="queue-panel__footer-btn queue-panel__footer-btn--clear"
+                        onClick={onClear}
+                        title="Clear queue"
+                    >Clear queue</button>
                 </div>
             )}
         </div>

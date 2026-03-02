@@ -405,6 +405,8 @@ export default function Player() {
                         onPlayItem={emitQueuePlayItem}
                         onReorder={emitQueueReorder}
                         onShuffle={emitQueueShuffle}
+                        onClear={() => { emitQueueClear(); addToast('Queue cleared', 'left') }}
+                        onSkip={emitQueueAdvance}
                     />
                 )}
             </div>
@@ -467,51 +469,27 @@ export default function Player() {
                                     <button className="url-submit" type="submit" disabled={!hasControl || isValidating}>
                                         {isValidating ? 'Checking…' : 'Load'}
                                     </button>
+                                    <button
+                                        type="button"
+                                        className="url-queue-btn"
+                                        onClick={handleQueueNext}
+                                        disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
+                                    >Queue next</button>
+                                    <button
+                                        type="button"
+                                        className="url-queue-btn"
+                                        onClick={handleQueueLast}
+                                        disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
+                                    >Queue last</button>
                                 </form>
                             </div>
-                        </div>
-                        <div className="queue-row">
-                        <div className="queue-actions">
                             <button
                                 type="button"
-                                className="queue-btn"
-                                onClick={handleQueueNext}
-                                disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
+                                className="room-btn room-btn--leave bar-row__leave"
+                                onClick={() => { addToast('Room left', 'left'); leaveRoom() }}
                             >
-                                Queue next
+                                Leave
                             </button>
-                            <button
-                                type="button"
-                                className="queue-btn"
-                                onClick={handleQueueLast}
-                                disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
-                            >
-                                Queue last
-                            </button>
-                            <button
-                                type="button"
-                                className="queue-btn queue-btn--clear"
-                                onClick={() => { emitQueueClear(); addToast('Queue cleared', 'left') }}
-                                disabled={!hasControl || room.queue.length === 0}
-                            >
-                                Clear queue
-                            </button>
-                            <button
-                                type="button"
-                                className="queue-btn queue-btn--skip"
-                                onClick={() => emitQueueAdvance()}
-                                disabled={!hasControl || room.queue.length === 0}
-                            >
-                                Skip
-                            </button>
-                        </div>
-                        <button
-                            type="button"
-                            className="room-btn room-btn--leave bar-row__leave"
-                            onClick={() => { addToast('Room left', 'left'); leaveRoom() }}
-                        >
-                            Leave
-                        </button>
                         </div>
                     </>
                 )}
