@@ -1,0 +1,14 @@
+node_modules/
+vusync.config.json
+server/dist/
+client/dist/
+shared/constants.js
+shared/constants.d.ts
+shared/constants.d.ts.map
+shared/types.js
+shared/types.d.ts
+shared/types.d.ts.map
+*.tsbuildinfo
+.idea/
+*.local
+.DS_Store
