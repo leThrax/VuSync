@@ -3,28 +3,37 @@
 A self-hosted, real-time YouTube synchronizer. Create a room, share the link, and watch videos together perfectly in sync — no accounts, no ads, no third-party servers.
 
 ---
+> [!WARNING]
+> **AI-Generated Code — Use at Your Own Risk**
+> This project was generated with [Claude Code](https://claude.ai/code).
+> It started as a field test, switched being a personal project actually being used by myself, and ended up being a public release
+> Neither the safety nor the functionality of this code is guaranteed.
+> Review thoroughly before using it in any production or security-sensitive environment.
 
 ## Features
 
 ### Sync
-- Frame-accurate playback sync across all viewers — play, pause, and seek are broadcast instantly via WebSockets
-- Drift-compensated join: new viewers catch up to the exact playback position, accounting for the time elapsed since the host last sent a state update
+- Accurate playback sync across all viewers — play, pause, and seek are broadcast instantly via WebSockets
+- Drift-compensated join: new viewers catch up to the exact playback position.
 - Viewer controls are locked out by default; non-hosts snap back to the room position if they try to seek
 
 ### Rooms
 - **Instant rooms** — one click to create, a short room code to share
-- **Shareable URLs** — joining via `?room=<code>` auto-joins on load, no extra step
 - **Password protection** — host can set, change, or remove a room password at any time; guests see a password prompt when joining
 - **Delegated control** — the host can grant any guest full playback and queue control
-- **Kick** — host can remove any viewer from the room
+- **Kick** — the host can remove any viewer from the room
+> [!TIP]
+> **Share the URL:** Let a friend join buy just sending them the URL. 
+> They will automatically join the room, no extra steps.
+> 
 
 ### Queue
 - Add videos to the front or back of the queue
 - **Playlist import** — paste a YouTube playlist URL to enqueue all videos at once (first video loads immediately; the rest are queued)
 - Drag-and-drop reordering
-- Play any queue item immediately
-- Remove individual items
-- Shuffle (Fisher-Yates)
+- Play any queued video immediately
+- Remove individual videos
+- Shuffle
 - Skip to next / Clear all
 - **Loop mode** — loops the current video indefinitely; synced across all users
 
@@ -34,7 +43,7 @@ A self-hosted, real-time YouTube synchronizer. Create a room, share the link, an
 - Gradient placeholder when no default video is set
 
 ### UX
-- Persistent username (saved in `localStorage`)
+- Persistent username
 - Toast notifications for join, leave, kick, room code copy, and queue actions
 - Room code one-click copy to clipboard
 
@@ -59,9 +68,12 @@ A self-hosted, real-time YouTube synchronizer. Create a room, share the link, an
 
 ## Requirements
 
-- **Node.js** 18 or later
-- **npm** 9 or later (ships with Node 18)
+- **Node.js** 25 or later
+- **npm** 11 or later (ships with Node 25)
 - A **YouTube Data API v3 key** *(optional — only needed for full playlist support beyond 15 videos)*
+
+> [!NOTE]
+> Older Node.js and npm versions might work, but I haven't tested them yet.
 
 ---
 
@@ -71,7 +83,7 @@ A self-hosted, real-time YouTube synchronizer. Create a room, share the link, an
 
 ```bash
 git clone https://github.com/your-username/vusync.git
-cd vusync
+cd vusync-master
 ```
 
 ### 2. Install dependencies
@@ -109,6 +121,9 @@ cp vusync.config.example.json vusync.config.json
 | `client.port`    | Port Vite's dev server uses (default `5173`)                             |
 | `youtube.apiKey` | YouTube Data API v3 key — leave empty to use the RSS fallback            |
 | `defaultVideoId` | YouTube video ID shown before any video is loaded (leave empty for none) |
+
+> [!NOTE]
+> In most cases changing the client port won't be necessary as only the server port is being exposed when built for production
 
 **Getting a YouTube Data API v3 key** *(optional)*
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
@@ -170,7 +185,8 @@ Create `/etc/apache2/sites-available/vusync.conf`:
 
 <VirtualHost *:443>
     ServerName example.com
-    SSLEngine on
+    # Keep SSL Engine commented out, Certbot will do the work
+    # SSLEngine on
     # certbot --apache fills these in automatically
     # SSLCertificateFile    /etc/letsencrypt/live/example.com/fullchain.pem
     # SSLCertificateKeyFile /etc/letsencrypt/live/example.com/privkey.pem
@@ -233,13 +249,13 @@ sudo systemctl enable --now vusync
 
 Ideas being considered — contributions welcome:
 
-- **Chat panel** — real-time text chat alongside the player (Socket.IO event already wired)
-- **Mobile layout** — responsive design for phones and tablets
-- **Volume sync** — optional opt-in to synchronize volume level across viewers
-- **Watch history** — per-room log of previously played videos with one-click re-queue
-- **Room persistence** — survive server restarts by persisting room state to disk or Redis
-- **Docker image** — official `docker-compose.yml` for one-command self-hosting
-- **Invite link generator** — copyable URL pre-filled with room code
+- [ ] **Chat panel** — real-time text chat alongside the player (Socket.IO event already wired)
+- [ ] **Mobile layout** — responsive design for phones and tablets
+- [ ] **Volume sync** — optional opt-in to synchronize volume level across viewers
+- [ ] **Watch history** — per-room log of previously played videos with one-click re-queue
+- [ ] **Room persistence** — survive server restarts by persisting room state to disk or Redis
+- [ ] **Docker image** — official `docker-compose.yml` for one-command self-hosting
+- [ ] **Invite link generator** — copyable URL pre-filled with room code
 
 ---
 
