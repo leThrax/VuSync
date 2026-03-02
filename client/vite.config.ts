@@ -27,7 +27,6 @@ export default defineConfig({
         extensions: ['.mts', '.ts', '.tsx', '.mjs', '.js', '.jsx', '.json'],
     },
     server: {
-        allowedHosts: ["tyrserver.de"],
         port: clientPort,
         fs: {
             // Allow importing from the monorepo root (shared/)

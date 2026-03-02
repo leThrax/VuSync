@@ -83,7 +83,11 @@ npm install
 
 ### 3. Configure
 
-Create and edit `vusync.config.json` in the repo root:
+Copy the example config and edit it:
+
+```bash
+cp vusync.config.example.json vusync.config.json
+```
 
 ```json
 {
@@ -127,10 +131,92 @@ Open `http://localhost:5173` in your browser.
 
 ```bash
 npm run build
-npm run start --workspace=server
+npm start
 ```
 
-Serve `client/dist/` as static files and proxy WebSocket + API traffic to `localhost:3001` with nginx, Caddy, or your preferred reverse proxy.
+This compiles all packages and starts the server with `NODE_ENV=production`. The server serves the built React app on port 3001 and handles the API and WebSocket on the same port — no separate static file server needed.
+
+For HTTPS (required for `wss://` WebSockets in production) put a reverse proxy in front of port 3001.
+
+---
+
+## Production deployment
+
+VuSync runs as a single Node.js process. Point your reverse proxy at `localhost:3001`.
+
+### Caddy *(recommended — automatic HTTPS)*
+
+`/etc/caddy/Caddyfile`:
+```
+example.com {
+    reverse_proxy localhost:3001
+}
+```
+
+Caddy obtains and renews a Let's Encrypt certificate automatically. That's all the config required.
+
+### Apache2
+
+Enable the required modules once:
+```bash
+sudo a2enmod proxy proxy_http proxy_wstunnel ssl rewrite
+```
+
+Create `/etc/apache2/sites-available/vusync.conf`:
+```apache
+<VirtualHost *:80>
+    ServerName example.com
+    Redirect permanent / https://example.com/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName example.com
+    SSLEngine on
+    # certbot --apache fills these in automatically
+    # SSLCertificateFile    /etc/letsencrypt/live/example.com/fullchain.pem
+    # SSLCertificateKeyFile /etc/letsencrypt/live/example.com/privkey.pem
+
+    ProxyPreserveHost On
+
+    # WebSocket upgrade — required for Socket.IO
+    RewriteEngine On
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^/?(.*) ws://localhost:3001/$1 [P,L]
+
+    ProxyPass / http://localhost:3001/
+    ProxyPassReverse / http://localhost:3001/
+</VirtualHost>
+```
+
+```bash
+sudo a2ensite vusync
+sudo certbot --apache -d example.com
+sudo systemctl reload apache2
+```
+
+### Running as a service (systemd)
+
+`/etc/systemd/system/vusync.service`:
+```ini
+[Unit]
+Description=VuSync
+After=network.target
+
+[Service]
+WorkingDirectory=/path/to/vusync
+ExecStart=/usr/bin/node server/dist/index.js
+Environment=NODE_ENV=production
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl enable --now vusync
+```
 
 ---
 

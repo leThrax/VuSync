@@ -2,20 +2,28 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import path from 'path';
 import { config } from './config';
 import { setupSocketHandlers } from './socket/handlers';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const app = express();
-app.use(cors());
+app.use(isProd ? cors({ origin: false }) : cors());
 app.use(express.json());
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-    cors: {
-        origin: true, // allow all origins in dev
-        methods: ['GET', 'POST'],
-    },
+    cors: isProd
+        ? { origin: false }
+        : { origin: true, methods: ['GET', 'POST'] },
 });
+
+// Serve built client in production
+if (isProd) {
+    const clientDist = path.join(__dirname, '../../client/dist');
+    app.use(express.static(clientDist));
+}
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -124,6 +132,14 @@ app.get('/api/playlist/:playlistId', async (req, res) => {
 
 // Setup WebSocket handlers
 setupSocketHandlers(io);
+
+// SPA fallback — must come after all API routes
+if (isProd) {
+    const clientDist = path.join(__dirname, '../../client/dist');
+    app.get('*', (_req, res) => {
+        res.sendFile(path.join(clientDist, 'index.html'));
+    });
+}
 
 httpServer.listen(config.server.port, () => {
     console.log(`🚀 Server running on http://localhost:${config.server.port}`);
