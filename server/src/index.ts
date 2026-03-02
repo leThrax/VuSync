@@ -136,7 +136,7 @@ setupSocketHandlers(io);
 // SPA fallback — must come after all API routes
 if (isProd) {
     const clientDist = path.join(__dirname, '../../client/dist');
-    app.get('*', (_req, res) => {
+    app.use((_req, res) => {
         res.sendFile(path.join(clientDist, 'index.html'));
     });
 }

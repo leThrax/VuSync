@@ -325,7 +325,7 @@ export default function Player() {
         function onMouseMove(e: MouseEvent) {
             if (!isResizingRef.current) return
             const dx = e.clientX - resizeStartXRef.current
-            setPlayerWidth(w => Math.max(MIN_PLAYER_WIDTH, Math.min(MAX_PLAYER_WIDTH, resizeStartWidthRef.current + dx * 2)))
+            setPlayerWidth(_ => Math.max(MIN_PLAYER_WIDTH, Math.min(MAX_PLAYER_WIDTH, resizeStartWidthRef.current + dx * 2)))
         }
         function onMouseUp() {
             if (!isResizingRef.current) return

@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io'
 import { EVENTS } from '../../../shared/constants'
-import type { Room, User, PlayerState, ChatMessage } from '../../../shared/types'
+import type { Room, User, PlayerState, QueueItem, ChatMessage } from '../../../shared/types'
 import { config } from '../config'
 
 async function fetchVideoTitle(videoId: string): Promise<string> {
