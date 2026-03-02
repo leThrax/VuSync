@@ -27,6 +27,13 @@ export default function Player() {
     const [nameInput, setNameInput] = useState(() => localStorage.getItem('vusync-username') ?? '')
     const [toasts, setToasts] = useState<Toast[]>([])
     const [isValidating, setIsValidating] = useState(false)
+    const [setPasswordModalOpen, setSetPasswordModalOpen] = useState(false)
+    const [passwordInput, setPasswordInput] = useState('')
+    const [passwordModal, setPasswordModal] = useState<{
+        roomId: string
+        reason: 'password_required' | 'wrong_password'
+    } | null>(null)
+    const [modalPasswordInput, setModalPasswordInput] = useState('')
     const playerRef = useRef<YouTubePlayer | null>(null)
     const prevStateRef = useRef(-1)
     const toastIdRef = useRef(0)
@@ -46,7 +53,7 @@ export default function Player() {
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
     }
 
-    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, programmaticSeekRef, createRoom, joinRoom, leaveRoom } =
+    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, programmaticSeekRef, createRoom, joinRoom, leaveRoom } =
         useSync(
             playerRef,
             setVideoId,
@@ -54,6 +61,10 @@ export default function Player() {
             (userName) => addToast(`${userName} left the room`, 'left'),
             () => addToast('Joined the room', 'left'),
             (userName) => addToast(`${userName} joined the room`, 'left'),
+            (roomId, reason) => {
+                setPasswordModal({ roomId, reason })
+                setModalPasswordInput('')
+            },
         )
 
     // Always-current ref for room — avoids stale closures in YouTube event callbacks
@@ -336,6 +347,22 @@ export default function Player() {
         emitChangeName(name)
     }
 
+    function handleSetPassword(e: { preventDefault(): void }) {
+        e.preventDefault()
+        emitSetPassword(passwordInput.trim())
+        addToast(passwordInput.trim() === '' ? 'Room password removed' : 'Room password set', 'left')
+        setPasswordInput('')
+        setSetPasswordModalOpen(false)
+    }
+
+    function handleModalSubmit(e: { preventDefault(): void }) {
+        e.preventDefault()
+        if (!passwordModal) return
+        joinRoom(passwordModal.roomId, nameInput.trim(), modalPasswordInput)
+        setPasswordModal(null)
+        setModalPasswordInput('')
+    }
+
     function handleCreateRoom() {
         createRoom('My Room', nameInput.trim())
     }
@@ -350,6 +377,7 @@ export default function Player() {
     const inRoom = room !== null
 
     return (
+        <>
         <div className="player-layout">
             {toasts.filter(t => t.side === 'left').length > 0 && (
                 <div className="toast-container toast-container--left">
@@ -465,6 +493,18 @@ export default function Player() {
                                     }}
                                     title="Click to copy"
                                 >Code: <strong>{room.id}</strong></span>
+                                {isHost && (
+                                    <div className="lock-btn-wrap">
+                                        <button
+                                            type="button"
+                                            className="lock-btn"
+                                            onClick={() => { setPasswordInput(''); setSetPasswordModalOpen(true) }}
+                                            title={room.hasPassword ? 'Password set — click to change' : 'Set room password'}
+                                        >
+                                            {room.hasPassword ? '🔒' : '🔓'}
+                                        </button>
+                                    </div>
+                                )}
                                 <form className="url-form" onSubmit={handleUrlSubmit}>
                                     <input
                                         className="url-input"
@@ -502,5 +542,56 @@ export default function Player() {
                 )}
             </div>
         </div>
+        {setPasswordModalOpen && (
+            <div className="pw-modal-backdrop" onClick={() => setSetPasswordModalOpen(false)}>
+                <div className="pw-modal" onClick={e => e.stopPropagation()}>
+                    <p className="pw-modal__title">
+                        {room?.hasPassword ? 'Change or remove room password' : 'Set a room password'}
+                    </p>
+                    <form onSubmit={handleSetPassword} className="pw-modal__form">
+                        <input
+                            className="pw-modal__input"
+                            type="password"
+                            autoFocus
+                            value={passwordInput}
+                            onChange={e => setPasswordInput(e.target.value)}
+                            placeholder={room?.hasPassword ? 'New password or blank to remove…' : 'Set password…'}
+                            autoComplete="new-password"
+                        />
+                        <div className="pw-modal__actions">
+                            <button type="submit" className="room-btn">Set</button>
+                            <button type="button" className="room-btn room-btn--leave" onClick={() => setSetPasswordModalOpen(false)}>Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        )}
+        {passwordModal && (
+            <div className="pw-modal-backdrop" onClick={() => setPasswordModal(null)}>
+                <div className="pw-modal" onClick={e => e.stopPropagation()}>
+                    <p className={`pw-modal__title${passwordModal.reason === 'wrong_password' ? ' pw-modal__title--error' : ''}`}>
+                        {passwordModal.reason === 'wrong_password'
+                            ? 'Wrong password — try again'
+                            : 'This room is password-protected'}
+                    </p>
+                    <form onSubmit={handleModalSubmit} className="pw-modal__form">
+                        <input
+                            className="pw-modal__input"
+                            type="password"
+                            autoFocus
+                            value={modalPasswordInput}
+                            onChange={e => setModalPasswordInput(e.target.value)}
+                            placeholder="Enter password…"
+                            autoComplete="current-password"
+                        />
+                        <div className="pw-modal__actions">
+                            <button type="submit" className="room-btn">Join</button>
+                            <button type="button" className="room-btn room-btn--leave" onClick={() => setPasswordModal(null)}>Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        )}
+        </>
     )
 }

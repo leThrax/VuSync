@@ -19,6 +19,7 @@ export interface Room {
     users: User[];
     playerState: PlayerState;
     queue: QueueItem[]; // ordered list of queued videos
+    hasPassword?: boolean;
 }
 
 export interface PlayerState {

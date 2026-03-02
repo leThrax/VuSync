@@ -28,9 +28,10 @@ export interface UseSyncReturn {
     emitQueuePlayItem: (index: number) => void
     emitQueueReorder: (fromIndex: number, toIndex: number) => void
     emitQueueShuffle: () => void
+    emitSetPassword: (password: string) => void
     programmaticSeekRef: MutableRefObject<boolean>
     createRoom: (roomName: string, userName: string) => void
-    joinRoom: (roomId: string, userName: string) => void
+    joinRoom: (roomId: string, userName: string, password?: string) => void
     leaveRoom: () => void
 }
 
@@ -41,6 +42,7 @@ export function useSync(
     onUserLeft?: (userName: string) => void,
     onJoinedRoom?: () => void,
     onUserJoined?: (userName: string) => void,
+    onJoinRejected?: (roomId: string, reason: 'password_required' | 'wrong_password') => void,
 ): UseSyncReturn {
     const [isConnected, setIsConnected] = useState(socket.connected)
     const [room, setRoom] = useState<Room | null>(null)
@@ -55,6 +57,8 @@ export function useSync(
     useEffect(() => { onJoinedRoomRef.current = onJoinedRoom }, [onJoinedRoom])
     const onUserJoinedRef = useRef(onUserJoined)
     useEffect(() => { onUserJoinedRef.current = onUserJoined }, [onUserJoined])
+    const onJoinRejectedRef = useRef(onJoinRejected)
+    useEffect(() => { onJoinRejectedRef.current = onJoinRejected }, [onJoinRejected])
     // Tracks whether we're currently in a room (used to detect the initial join)
     const inRoomRef = useRef(false)
     // Flags a seekTo call made by a sync handler so handleStateChange can ignore the resulting 2→3 transition
@@ -171,6 +175,10 @@ export function useSync(
             onUserJoinedRef.current?.(payload.userName)
         }
 
+        function onJoinRejectedHandler(payload: { roomId: string; reason: 'password_required' | 'wrong_password' }) {
+            onJoinRejectedRef.current?.(payload.roomId, payload.reason)
+        }
+
         async function onSyncState(state: PlayerState) {
             const player = playerRef.current
             if (!player) return
@@ -198,6 +206,7 @@ export function useSync(
         socket.on(EVENTS.KICKED, onKicked)
         socket.on(EVENTS.USER_LEFT, onUserLeftHandler)
         socket.on(EVENTS.USER_JOINED, onUserJoinedHandler)
+        socket.on(EVENTS.JOIN_REJECTED, onJoinRejectedHandler)
 
         return () => {
             socket.off('connect', onConnect)
@@ -211,6 +220,7 @@ export function useSync(
             socket.off(EVENTS.KICKED, onKicked)
             socket.off(EVENTS.USER_LEFT, onUserLeftHandler)
             socket.off(EVENTS.USER_JOINED, onUserJoinedHandler)
+            socket.off(EVENTS.JOIN_REJECTED, onJoinRejectedHandler)
             socket.disconnect()
         }
     }, [playerRef]) // playerRef is a stable ref object — effect runs once on mount
@@ -222,8 +232,13 @@ export function useSync(
         socket.emit(EVENTS.CREATE_ROOM, { name: roomName, userName })
     }
 
-    function joinRoom(roomId: string, userName: string) {
-        socket.emit(EVENTS.JOIN_ROOM, { roomId, userName })
+    function joinRoom(roomId: string, userName: string, password?: string) {
+        socket.emit(EVENTS.JOIN_ROOM, { roomId, userName, ...(password !== undefined ? { password } : {}) })
+    }
+
+    function emitSetPassword(password: string) {
+        if (!room || !isHost) return
+        socket.emit(EVENTS.SET_PASSWORD, { roomId: room.id, password })
     }
 
     function emitPlay(currentTime: number) {
@@ -308,5 +323,5 @@ export function useSync(
         setRoom(null)
     }
 
-    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
+    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
 }

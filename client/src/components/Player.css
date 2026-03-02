@@ -312,3 +312,93 @@
     from { opacity: 0; transform: translateY(-6px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Lock button ─────────────────────────────────── */
+.lock-btn-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.lock-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    line-height: 1;
+    transition: background 0.15s;
+}
+
+.lock-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ── Password modal ──────────────────────────────── */
+.pw-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    animation: toast-in 0.15s ease;
+}
+
+.pw-modal {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 28px 32px;
+    min-width: 320px;
+    max-width: 420px;
+    width: 90vw;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pw-modal__title {
+    margin: 0;
+    font-size: 15px;
+    color: #ccc;
+    font-weight: 500;
+}
+
+.pw-modal__title--error {
+    color: #ff6b6b;
+}
+
+.pw-modal__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pw-modal__input {
+    padding: 10px 14px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pw-modal__input:focus {
+    border-color: #666;
+}
+
+.pw-modal__actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
