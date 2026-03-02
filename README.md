@@ -5,8 +5,10 @@ A self-hosted, real-time YouTube synchronizer. Create a room, share the link, an
 ---
 > [!WARNING]
 > **AI-Generated Code — Use at Your Own Risk**
+> 
 > This project was generated with [Claude Code](https://claude.ai/code).
 > It started as a field test, switched being a personal project actually being used by myself, and ended up being a public release
+> 
 > Neither the safety nor the functionality of this code is guaranteed.
 > Review thoroughly before using it in any production or security-sensitive environment.
 
@@ -23,7 +25,9 @@ A self-hosted, real-time YouTube synchronizer. Create a room, share the link, an
 - **Delegated control** — the host can grant any guest full playback and queue control
 - **Kick** — the host can remove any viewer from the room
 > [!TIP]
-> **Share the URL:** Let a friend join buy just sending them the URL. 
+> **Share the URL:** 
+> 
+> Let a friend join buy just sending them the URL. 
 > They will automatically join the room, no extra steps.
 > 
 
