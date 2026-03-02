@@ -18,7 +18,10 @@ const MAX_PLAYER_WIDTH = 1760
 
 export default function Player() {
     const [videoId, setVideoId] = useState('')
-    const [playerWidth, setPlayerWidth] = useState(MAX_PLAYER_WIDTH)
+    const [playerWidth, setPlayerWidth] = useState(() => {
+        const saved = localStorage.getItem('vusync-player-width')
+        return saved ? Math.max(MIN_PLAYER_WIDTH, Math.min(MAX_PLAYER_WIDTH, Number(saved))) : MAX_PLAYER_WIDTH
+    })
     const [urlInput, setUrlInput] = useState('')
     const [joinInput, setJoinInput] = useState('')
     const [nameInput, setNameInput] = useState(() => localStorage.getItem('vusync-username') ?? '')
@@ -32,6 +35,10 @@ export default function Player() {
     const isResizingRef = useRef(false)
     const resizeStartXRef = useRef(0)
     const resizeStartWidthRef = useRef(0)
+
+    useEffect(() => {
+        localStorage.setItem('vusync-player-width', String(playerWidth))
+    }, [playerWidth])
 
     function addToast(message: string, side: 'left' | 'right', type: 'danger' | 'success' = 'success') {
         const id = ++toastIdRef.current
