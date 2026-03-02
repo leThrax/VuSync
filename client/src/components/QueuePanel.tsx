@@ -8,9 +8,10 @@ interface QueuePanelProps {
     onRemove?: (index: number) => void
     onPlayItem?: (index: number) => void
     onReorder?: (fromIndex: number, toIndex: number) => void
+    onShuffle?: () => void
 }
 
-export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder }: QueuePanelProps) {
+export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder, onShuffle }: QueuePanelProps) {
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
     const dragIndexRef = useRef<number | null>(null)
 
@@ -18,6 +19,13 @@ export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, on
         <div className="queue-panel">
             <div className="queue-panel__header">
                 <span>Up next{queue.length > 0 ? ` (${queue.length})` : ''}</span>
+                {hasControl && onShuffle && queue.length > 1 && (
+                    <button
+                        className="queue-header__shuffle-btn"
+                        onClick={onShuffle}
+                        title="Shuffle queue"
+                    >⇄</button>
+                )}
             </div>
             {queue.length === 0 ? (
                 <p className="queue-empty">Queue is empty</p>

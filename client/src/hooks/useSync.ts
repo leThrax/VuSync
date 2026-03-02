@@ -27,6 +27,7 @@ export interface UseSyncReturn {
     emitQueueRemove: (index: number) => void
     emitQueuePlayItem: (index: number) => void
     emitQueueReorder: (fromIndex: number, toIndex: number) => void
+    emitQueueShuffle: () => void
     programmaticSeekRef: MutableRefObject<boolean>
     createRoom: (roomName: string, userName: string) => void
     joinRoom: (roomId: string, userName: string) => void
@@ -295,6 +296,11 @@ export function useSync(
         socket.emit(EVENTS.QUEUE_REORDER, { roomId: room.id, fromIndex, toIndex })
     }
 
+    function emitQueueShuffle() {
+        if (!room || !hasControl) return
+        socket.emit(EVENTS.QUEUE_SHUFFLE, { roomId: room.id })
+    }
+
     function leaveRoom() {
         if (!room) return
         socket.emit(EVENTS.LEAVE_ROOM)
@@ -302,5 +308,5 @@ export function useSync(
         setRoom(null)
     }
 
-    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
+    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
 }

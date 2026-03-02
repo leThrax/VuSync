@@ -194,6 +194,18 @@ export function setupSocketHandlers(io: Server): void {
             }
         })
 
+        socket.on(EVENTS.QUEUE_SHUFFLE, (payload: { roomId: string }) => {
+            const room = rooms.get(payload.roomId)
+            if (!room || !hasControl(room)) return
+            for (let i = room.queue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [room.queue[i], room.queue[j]] = [room.queue[j], room.queue[i]]
+            }
+            for (const u of room.users) {
+                io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+            }
+        })
+
         socket.on(EVENTS.GRANT_CONTROL, (payload: { roomId: string; targetId: string }) => {
             const room = rooms.get(payload.roomId)
             if (!room || room.hostId !== socket.id) return

@@ -20,6 +20,9 @@
     margin-bottom: 4px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .queue-panel__list {
@@ -117,4 +120,23 @@
     color: #444;
     text-align: center;
     margin: 4px 0 2px;
+}
+
+.queue-header__shuffle-btn {
+    background: none;
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 4px;
+    color: rgba(167, 139, 250, 0.6);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 2px 5px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+
+.queue-header__shuffle-btn:hover {
+    background: rgba(167, 139, 250, 0.12);
+    border-color: rgba(167, 139, 250, 0.6);
+    color: rgba(167, 139, 250, 1);
 }
