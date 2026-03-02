@@ -106,6 +106,15 @@ export function setupSocketHandlers(io: Server): void {
             }
         })
 
+        socket.on(EVENTS.SET_LOOP, (payload: { roomId: string; loop: boolean }) => {
+            const room = rooms.get(payload.roomId)
+            if (!room || !hasControl(room)) return
+            room.loop = payload.loop
+            for (const u of room.users) {
+                io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+            }
+        })
+
         function hasControl(room: Room): boolean {
             return room.hostId === socket.id || room.users.find(u => u.id === socket.id)?.canControl === true
         }

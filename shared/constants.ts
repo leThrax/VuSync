@@ -6,6 +6,7 @@ export const EVENTS = {
     LEAVE_ROOM: 'room:leave',
     ROOM_UPDATE: 'room:update',
     SET_PASSWORD: 'room:setPassword',
+    SET_LOOP: 'room:setLoop',
     JOIN_REJECTED: 'room:joinRejected',
 
     // Playback sync

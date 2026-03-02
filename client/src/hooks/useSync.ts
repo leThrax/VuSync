@@ -29,6 +29,7 @@ export interface UseSyncReturn {
     emitQueueReorder: (fromIndex: number, toIndex: number) => void
     emitQueueShuffle: () => void
     emitSetPassword: (password: string) => void
+    emitSetLoop: (loop: boolean) => void
     programmaticSeekRef: MutableRefObject<boolean>
     createRoom: (roomName: string, userName: string) => void
     joinRoom: (roomId: string, userName: string, password?: string) => void
@@ -241,6 +242,11 @@ export function useSync(
         socket.emit(EVENTS.SET_PASSWORD, { roomId: room.id, password })
     }
 
+    function emitSetLoop(loop: boolean) {
+        if (!room || !hasControl) return
+        socket.emit(EVENTS.SET_LOOP, { roomId: room.id, loop })
+    }
+
     function emitPlay(currentTime: number) {
         if (!room || !hasControl) return
         socket.emit(EVENTS.PLAY, { roomId: room.id, currentTime })
@@ -323,5 +329,5 @@ export function useSync(
         setRoom(null)
     }
 
-    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
+    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, emitSetLoop, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
 }

@@ -44,6 +44,11 @@
     transition: border-color 0.1s;
 }
 
+.queue-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 4px;
+}
+
 .queue-item[draggable="true"] {
     cursor: grab;
 }
@@ -168,7 +173,13 @@
     color: #ffa000;
 }
 
-.queue-header__shuffle-btn {
+.queue-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.queue-header__btn {
     background: none;
     border: 1px solid rgba(167, 139, 250, 0.25);
     border-radius: 4px;
@@ -181,8 +192,14 @@
     flex-shrink: 0;
 }
 
-.queue-header__shuffle-btn:hover {
+.queue-header__btn:hover {
     background: rgba(167, 139, 250, 0.12);
     border-color: rgba(167, 139, 250, 0.6);
+    color: rgba(167, 139, 250, 1);
+}
+
+.queue-header__btn--active {
+    background: rgba(167, 139, 250, 0.15);
+    border-color: rgba(167, 139, 250, 0.7);
     color: rgba(167, 139, 250, 1);
 }

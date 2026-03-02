@@ -11,9 +11,11 @@ interface QueuePanelProps {
     onShuffle?: () => void
     onClear?: () => void
     onSkip?: () => void
+    loop?: boolean
+    onLoop?: () => void
 }
 
-export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder, onShuffle, onClear, onSkip }: QueuePanelProps) {
+export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder, onShuffle, onClear, onSkip, loop, onLoop }: QueuePanelProps) {
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
     const dragIndexRef = useRef<number | null>(null)
 
@@ -21,13 +23,22 @@ export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, on
         <div className="queue-panel">
             <div className="queue-panel__header">
                 <span>Up next{queue.length > 0 ? ` (${queue.length})` : ''}</span>
-                {hasControl && onShuffle && queue.length > 1 && (
-                    <button
-                        className="queue-header__shuffle-btn"
-                        onClick={onShuffle}
-                        title="Shuffle queue"
-                    >⇄</button>
-                )}
+                <div className="queue-header__actions">
+                    {hasControl && onShuffle && queue.length > 1 && (
+                        <button
+                            className="queue-header__btn"
+                            onClick={onShuffle}
+                            title="Shuffle queue"
+                        >⇄</button>
+                    )}
+                    {hasControl && onLoop && (
+                        <button
+                            className={`queue-header__btn${loop ? ' queue-header__btn--active' : ''}`}
+                            onClick={onLoop}
+                            title={loop ? 'Loop on — click to disable' : 'Loop off — click to enable'}
+                        >↻</button>
+                    )}
+                </div>
             </div>
             {queue.length === 0 ? (
                 <p className="queue-empty">Queue is empty</p>

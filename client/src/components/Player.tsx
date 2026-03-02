@@ -53,7 +53,7 @@ export default function Player() {
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
     }
 
-    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, programmaticSeekRef, createRoom, joinRoom, leaveRoom } =
+    const { isConnected, room, isHost, hasControl, socketId, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, emitSetLoop, programmaticSeekRef, createRoom, joinRoom, leaveRoom } =
         useSync(
             playerRef,
             setVideoId,
@@ -182,7 +182,16 @@ export default function Player() {
     }
 
     function handleEnd() {
-        if (hasControl && room && room.queue.length > 0) {
+        if (!hasControl || !room) return
+        if (room.loop) {
+            const player = playerRef.current
+            if (!player) return
+            programmaticSeekRef.current = true
+            setTimeout(() => { programmaticSeekRef.current = false }, 500)
+            player.seekTo(0, true)
+            player.playVideo()
+            emitPlay(0)
+        } else if (room.queue.length > 0) {
             emitQueueAdvance()
         }
     }
@@ -442,6 +451,8 @@ export default function Player() {
                         onShuffle={emitQueueShuffle}
                         onClear={() => { emitQueueClear(); addToast('Queue cleared', 'left') }}
                         onSkip={emitQueueAdvance}
+                        loop={room.loop}
+                        onLoop={() => emitSetLoop(!room.loop)}
                     />
                 )}
             </div>
