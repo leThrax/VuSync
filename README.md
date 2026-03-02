@@ -1,4 +1,5 @@
-# VuSync
+# VuSync ![alt text](https://github.com/leThrax/VuSync/blob/master/client/src/assets/VuSync-logo.png "VuSync Logo")
+
 
 A self-hosted, real-time YouTube synchronizer. Create a room, share the link, and watch videos together perfectly in sync — no accounts, no ads, no third-party servers.
 
