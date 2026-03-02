@@ -1,0 +1,162 @@
+# VuSync
+
+A self-hosted, real-time YouTube synchronizer. Create a room, share the link, and watch videos together perfectly in sync — no accounts, no ads, no third-party servers.
+
+---
+
+## Features
+
+### Sync
+- Frame-accurate playback sync across all viewers — play, pause, and seek are broadcast instantly via WebSockets
+- Drift-compensated join: new viewers catch up to the exact playback position, accounting for the time elapsed since the host last sent a state update
+- Viewer controls are locked out by default; non-hosts snap back to the room position if they try to seek
+
+### Rooms
+- **Instant rooms** — one click to create, a short room code to share
+- **Shareable URLs** — joining via `?room=<code>` auto-joins on load, no extra step
+- **Password protection** — host can set, change, or remove a room password at any time; guests see a password prompt when joining
+- **Delegated control** — the host can grant any guest full playback and queue control
+- **Kick** — host can remove any viewer from the room
+
+### Queue
+- Add videos to the front or back of the queue
+- **Playlist import** — paste a YouTube playlist URL to enqueue all videos at once (first video loads immediately; the rest are queued)
+- Drag-and-drop reordering
+- Play any queue item immediately
+- Remove individual items
+- Shuffle (Fisher-Yates)
+- Skip to next / Clear all
+- **Loop mode** — loops the current video indefinitely; synced across all users
+
+### Player
+- Resizable embedded YouTube player (drag the right edge); size persists across page reloads
+- Configurable default video displayed before any video is loaded
+- Gradient placeholder when no default video is set
+
+### UX
+- Persistent username (saved in `localStorage`)
+- Toast notifications for join, leave, kick, room code copy, and queue actions
+- Room code one-click copy to clipboard
+
+### Server
+- Optional YouTube Data API v3 key for unlimited playlist pagination (50 videos per page, all pages fetched)
+- Automatic fallback to YouTube's public RSS feed when no API key is configured (up to 15 videos per playlist)
+- Video availability validated server-side before any URL is loaded or queued
+- API key is never exposed to clients
+
+---
+
+## Tech stack
+
+| Layer    | Technology                                       |
+|----------|--------------------------------------------------|
+| Frontend | React 19, Vite, TypeScript, react-youtube        |
+| Backend  | Node.js, Express, Socket.IO                      |
+| Shared   | TypeScript (npm workspace, compiled to CommonJS) |
+| Realtime | Socket.IO (WebSockets with long-poll fallback)   |
+
+---
+
+## Requirements
+
+- **Node.js** 18 or later
+- **npm** 9 or later (ships with Node 18)
+- A **YouTube Data API v3 key** *(optional — only needed for full playlist support beyond 15 videos)*
+
+---
+
+## Installation
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/your-username/vusync.git
+cd vusync
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure
+
+Create and edit `vusync.config.json` in the repo root:
+
+```json
+{
+  "server": {
+    "port": 3001
+  },
+  "client": {
+    "port": 5173
+  },
+  "youtube": {
+    "apiKey": ""
+  },
+  "defaultVideoId": ""
+}
+```
+
+| Field            | Description                                                              |
+|------------------|--------------------------------------------------------------------------|
+| `server.port`    | Port the backend listens on (default `3001`)                             |
+| `client.port`    | Port Vite's dev server uses (default `5173`)                             |
+| `youtube.apiKey` | YouTube Data API v3 key — leave empty to use the RSS fallback            |
+| `defaultVideoId` | YouTube video ID shown before any video is loaded (leave empty for none) |
+
+**Getting a YouTube Data API v3 key** *(optional)*
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a project → Enable **YouTube Data API v3**
+3. Create an API key under *Credentials*
+4. Paste the key into `vusync.config.json`
+
+### 4. Run in development
+
+```bash
+npm run dev
+```
+
+Starts both the backend (port 3001) and the Vite dev server (port 5173) concurrently with hot-reload.
+
+Open `http://localhost:5173` in your browser.
+
+### 5. Build for production
+
+```bash
+npm run build
+npm run start --workspace=server
+```
+
+Serve `client/dist/` as static files and proxy WebSocket + API traffic to `localhost:3001` with nginx, Caddy, or your preferred reverse proxy.
+
+---
+
+## Usage
+
+1. Open VuSync in your browser and set a display name.
+2. Click **Create room** — your room URL is ready to share instantly.
+3. Paste a YouTube video or playlist URL and click **Load**.
+4. Guests open the shared URL and the video plays in sync automatically.
+5. The host can grant control to any guest, set a password, or kick users from the Users panel.
+
+---
+
+## Potential future features
+
+Ideas being considered — contributions welcome:
+
+- **Chat panel** — real-time text chat alongside the player (Socket.IO event already wired)
+- **Mobile layout** — responsive design for phones and tablets
+- **Volume sync** — optional opt-in to synchronize volume level across viewers
+- **Watch history** — per-room log of previously played videos with one-click re-queue
+- **Room persistence** — survive server restarts by persisting room state to disk or Redis
+- **Docker image** — official `docker-compose.yml` for one-command self-hosting
+- **Invite link generator** — copyable URL pre-filled with room code
+
+---
+
+## License
+
+MIT
