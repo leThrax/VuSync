@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Zap, Gamepad2 } from 'lucide-react'
 import type { Room } from '../../../shared/types'
 import './UserList.css'
 
@@ -33,9 +34,9 @@ export default function UserList({ room, socketId, currentName, onChangeName, on
             {room === null && (
                 <div className="user-list__entries">
                     <div className="user-entry user-entry--me">
-                        <span className="user-entry__name">{currentName || 'Anonymous'}</span>
-                        <div className="user-entry__badges">
-                            <span className="badge badge--you">YOU</span>
+                        <div className="user-entry__left">
+                            <span className="user-dot" />
+                            <span className="user-entry__name">{currentName || 'Anonymous'}</span>
                         </div>
                     </div>
                 </div>
@@ -48,16 +49,18 @@ export default function UserList({ room, socketId, currentName, onChangeName, on
                         return (
                             <div
                                 key={user.id}
-                                className={`user-entry${isMe ? ' user-entry--me' : ''}${user.canControl ? ' user-entry--ctrl' : ''}`}
+                                className={`user-entry${isMe ? ' user-entry--me' : ''}${isHost ? ' user-entry--host' : ''}${user.canControl && !isHost ? ' user-entry--ctrl' : ''}`}
                                 onClick={currentUserIsHost && !isMe && !isHost ? () => onGrantControl(user.id) : undefined}
                                 style={currentUserIsHost && !isMe && !isHost ? { cursor: 'pointer' } : undefined}
                                 title={currentUserIsHost && !isMe && !isHost ? (user.canControl ? 'Revoke control' : 'Grant control') : undefined}
                             >
-                                <span className="user-entry__name">{user.name}</span>
-                                <div className="user-entry__badges">
-                                    {isHost && <span className="badge badge--host">HOST</span>}
-                                    {user.canControl && <span className="badge badge--ctrl">CTRL</span>}
-                                    {isMe && <span className="badge badge--you">YOU</span>}
+                                <div className="user-entry__left">
+                                    {isMe && <span className="user-dot" />}
+                                    <span className="user-entry__name">{user.name}</span>
+                                </div>
+                                <div className="user-entry__right">
+                                    {isHost && <span className="badge badge--host"><Zap size={11} strokeWidth={2} /></span>}
+                                    {user.canControl && !isHost && <span className="badge badge--ctrl"><Gamepad2 size={11} strokeWidth={2} /></span>}
                                     {currentUserIsHost && !isMe && (
                                         <button className="kick-btn" onClick={e => { e.stopPropagation(); onKick(user.id) }} title="Kick">❌</button>
                                     )}
