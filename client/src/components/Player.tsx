@@ -58,7 +58,7 @@ export default function Player() {
         useSync(
             playerRef,
             setVideoId,
-            () => addToast('You were kicked from the room', 'left', 'danger'),
+            () => { addToast('You were kicked from the room', 'left', 'danger'); setVideoId('') },
             (userName) => addToast(`${userName} left the room`, 'left'),
             () => addToast('Joined the room', 'left'),
             (userName) => addToast(`${userName} joined the room`, 'left'),
@@ -562,7 +562,7 @@ export default function Player() {
                             <button
                                 type="button"
                                 className="room-btn room-btn--leave bar-row__leave"
-                                onClick={() => { addToast('Room left', 'left'); leaveRoom() }}
+                                onClick={() => { addToast('Room left', 'left'); leaveRoom(); setVideoId('') }}
                             >
                                 Leave
                             </button>
