@@ -9,11 +9,12 @@ import type { QueueItem } from '../../../shared/types'
 import UserList from './UserList'
 import QueuePanel from './QueuePanel'
 import GradientText from './GradientText'
+import logoSrc from '../assets/VuSync-logo.png'
 import './Player.css'
 
 interface Toast { id: number; message: string; side: 'left' | 'right'; type: 'danger' | 'success' }
 
-const MIN_PLAYER_WIDTH = 600
+const MIN_PLAYER_WIDTH = 1100
 const MAX_PLAYER_WIDTH = 1760
 
 export default function Player() {
@@ -409,7 +410,50 @@ export default function Player() {
                     style={{ width: `min(${playerWidth}px, 98vw)` }}
                 >
                     <div className="player-wrapper">
-                        {!videoId ? (
+                        {!videoId && !inRoom ? (
+                            <div className="lobby-hero">
+                                <img src={logoSrc} alt="VuSync" className="lobby-hero__logo" />
+                                <div className="lobby-hero__wordmark">
+                                    <GradientText>VuSync</GradientText>
+                                </div>
+                                <p className="lobby-hero__tagline">Watch YouTube together, in sync.</p>
+                                <div className="lobby-hero__form">
+                                    <input
+                                        className="lobby-hero__name-input"
+                                        value={nameInput}
+                                        onChange={e => setNameInput(e.target.value)}
+                                        onBlur={() => { if (nameInput.trim()) handleChangeName(nameInput.trim()) }}
+                                        placeholder="Anonymous"
+                                        maxLength={32}
+                                    />
+                                    <div className="lobby-hero__cta">
+                                        <button
+                                            className="lobby-hero__btn lobby-hero__btn--create"
+                                            onClick={handleCreateRoom}
+                                            disabled={!isConnected}
+                                        >Create room</button>
+                                        <div className="lobby-hero__divider"><span>or</span></div>
+                                        <form className="lobby-hero__join-form" onSubmit={handleJoinRoom}>
+                                            <input
+                                                className="lobby-hero__join-input"
+                                                value={joinInput}
+                                                onChange={e => setJoinInput(e.target.value)}
+                                                placeholder="Room code…"
+                                                disabled={!isConnected}
+                                            />
+                                            <button
+                                                className="lobby-hero__btn lobby-hero__btn--join"
+                                                type="submit"
+                                                disabled={!isConnected}
+                                            >Join</button>
+                                        </form>
+                                    </div>
+                                    {!isConnected && (
+                                        <p className="lobby-hero__status">Connecting to server…</p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : !videoId ? (
                             <div className="vusync-placeholder">
                                 <div className="vusync-title-wrap">
                                     <GradientText>VuSync</GradientText>
@@ -457,34 +501,8 @@ export default function Player() {
                 )}
             </div>
 
-            <div className="bottom-bar">
-                {!inRoom ? (
-                    <>
-                        <div className="room-controls">
-                            <button
-                                className="room-btn room-btn--create"
-                                onClick={handleCreateRoom}
-                                disabled={!isConnected}
-                            >
-                                Create room
-                            </button>
-                            <form className="room-join-form" onSubmit={handleJoinRoom}>
-                                <input
-                                    className="room-join-input"
-                                    value={joinInput}
-                                    onChange={e => setJoinInput(e.target.value)}
-                                    placeholder="Room code…"
-                                    disabled={!isConnected}
-                                />
-                                <button className="room-btn" type="submit" disabled={!isConnected}>
-                                    Join
-                                </button>
-                            </form>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="bar-row">
+            {inRoom && <div className="bottom-bar">
+                    <div className="bar-row">
                             <div className="bar-row__center">
                                 <span
                                     className="room-code room-code--clickable"
@@ -548,10 +566,8 @@ export default function Player() {
                             >
                                 Leave
                             </button>
-                        </div>
-                    </>
-                )}
-            </div>
+                    </div>
+            </div>}
         </div>
         {setPasswordModalOpen && (
             <div className="pw-modal-backdrop" onClick={() => setSetPasswordModalOpen(false)}>

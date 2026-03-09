@@ -70,14 +70,16 @@ export default function UserList({ room, socketId, currentName, onChangeName, on
                     })}
                 </div>
             )}
-            <form className="name-form" onSubmit={handleSubmit}>
-                <input
-                    className="name-input"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    placeholder={room === null ? 'Set name…' : 'Change name…'}
-                />
-            </form>
+            {room !== null && (
+                <form className="name-form" onSubmit={handleSubmit}>
+                    <input
+                        className="name-input"
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                        placeholder="Change name…"
+                    />
+                </form>
+            )}
         </div>
     )
 }
