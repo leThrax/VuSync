@@ -61,25 +61,25 @@
 }
 
 .badge--host {
-    background: rgba(255, 160, 0, 0.15);
-    color: #ffa000;
-    border: 1px solid rgba(255, 160, 0, 0.25);
+    background: var(--color-badge-host-bg);
+    color: var(--color-badge-host);
+    border: 1px solid var(--color-badge-host-bdr);
 }
 
 .badge--you {
-    background: rgba(74, 158, 255, 0.12);
-    color: #4a9eff;
-    border: 1px solid rgba(74, 158, 255, 0.22);
+    background: var(--color-badge-you-bg);
+    color: var(--color-badge-you);
+    border: 1px solid var(--color-badge-you-bdr);
 }
 
 .badge--ctrl {
-    background: rgba(168, 85, 247, 0.12);
-    color: #a855f7;
-    border: 1px solid rgba(168, 85, 247, 0.25);
+    background: var(--color-badge-ctrl-bg);
+    color: var(--color-badge-ctrl);
+    border: 1px solid var(--color-badge-ctrl-bdr);
 }
 
 .user-entry--ctrl {
-    background: rgba(81, 28, 136, 0.32);
+    background: var(--color-badge-ctrl-row);
 }
 
 .user-entry[style*="pointer"]:hover {
@@ -114,7 +114,7 @@
 .kick-btn {
     background: none;
     border: none;
-    color: #ff0000;
+    color: var(--color-danger);
     font-size: 11px;
     cursor: pointer;
     padding: 2px 4px;
@@ -124,6 +124,6 @@
 }
 
 .kick-btn:hover {
-    color: #810303;
-    background: rgba(255, 68, 68, 0.12);
+    color: var(--color-danger-text);
+    background: var(--color-danger-dim);
 }

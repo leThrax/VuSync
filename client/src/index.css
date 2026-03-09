@@ -11,6 +11,42 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* ── VuSync color system ─────────────────────────────── */
+
+  /* Primary interactive blue */
+  --color-accent:         #3d8ef0;
+  --color-accent-dim:     rgba(61, 142, 240, 0.15);
+  --color-accent-border:  rgba(61, 142, 240, 0.28);
+  --color-accent-hover:   #1a6fd4;
+
+  /* Badge: YOU — primary blue */
+  --color-badge-you:      #3d8ef0;
+  --color-badge-you-bg:   rgba(61, 142, 240, 0.12);
+  --color-badge-you-bdr:  rgba(61, 142, 240, 0.22);
+
+  /* Badge: HOST — amber/gold (authority, warm axis) */
+  --color-badge-host:     #e8a020;
+  --color-badge-host-bg:  rgba(232, 160, 32, 0.13);
+  --color-badge-host-bdr: rgba(232, 160, 32, 0.25);
+
+  /* Badge: CTRL — cool violet (elevated permission) */
+  --color-badge-ctrl:     #8b7cf8;
+  --color-badge-ctrl-bg:  rgba(139, 124, 248, 0.12);
+  --color-badge-ctrl-bdr: rgba(139, 124, 248, 0.25);
+  --color-badge-ctrl-row: rgba(60, 40, 140, 0.30);
+  --color-drag-indicator: rgba(139, 124, 248, 0.55);
+
+  /* Semantic: danger — destructive actions only */
+  --color-danger:         #f05050;
+  --color-danger-dim:     rgba(240, 80, 80, 0.13);
+  --color-danger-border:  rgba(240, 80, 80, 0.28);
+  --color-danger-text:    #f47070;
+
+  /* Semantic: success — success feedback only */
+  --color-success:        #3ec97a;
+  --color-success-dim:    rgba(62, 201, 122, 0.12);
+  --color-success-border: rgba(62, 201, 122, 0.25);
 }
 
 

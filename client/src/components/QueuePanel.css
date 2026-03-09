@@ -58,7 +58,7 @@
 }
 
 .queue-item--drag-over {
-    border-top-color: rgba(167, 139, 250, 0.6);
+    border-top-color: var(--color-drag-indicator);
 }
 
 .queue-item__thumb {
@@ -111,13 +111,13 @@
 }
 
 .queue-item__btn--play:hover {
-    background: rgba(74, 222, 128, 0.2);
-    color: #4ade80;
+    background: var(--color-accent-dim);
+    color: var(--color-accent);
 }
 
 .queue-item__btn--remove:hover {
-    background: rgba(255, 80, 80, 0.3);
-    color: #ff6b6b;
+    background: var(--color-danger-dim);
+    color: var(--color-danger-text);
 }
 
 .queue-empty {
@@ -152,25 +152,29 @@
 }
 
 .queue-panel__footer-btn--clear {
-    border-color: rgba(255, 107, 107, 0.2);
-    color: rgba(255, 107, 107, 0.6);
+    border-color: var(--color-danger-border);
+    color: var(--color-danger-text);
+    opacity: 0.6;
 }
 
 .queue-panel__footer-btn--clear:hover {
-    background: rgba(255, 68, 68, 0.1);
-    border-color: rgba(255, 107, 107, 0.5);
-    color: #ff6b6b;
+    background: var(--color-danger-dim);
+    border-color: var(--color-danger-border);
+    color: var(--color-danger-text);
+    opacity: 1;
 }
 
 .queue-panel__footer-btn--skip {
-    border-color: rgba(255, 160, 0, 0.2);
-    color: rgba(255, 160, 0, 0.6);
+    border-color: var(--color-accent-border);
+    color: var(--color-accent);
+    opacity: 0.6;
 }
 
 .queue-panel__footer-btn--skip:hover {
-    background: rgba(255, 160, 0, 0.08);
-    border-color: rgba(255, 160, 0, 0.5);
-    color: #ffa000;
+    background: var(--color-accent-dim);
+    border-color: var(--color-accent-border);
+    color: var(--color-accent);
+    opacity: 1;
 }
 
 .queue-header__actions {
@@ -181,25 +185,28 @@
 
 .queue-header__btn {
     background: none;
-    border: 1px solid rgba(167, 139, 250, 0.25);
+    border: 1px solid var(--color-badge-ctrl-bdr);
     border-radius: 4px;
-    color: rgba(167, 139, 250, 0.6);
+    color: var(--color-badge-ctrl);
+    opacity: 0.6;
     cursor: pointer;
     font-size: 14px;
     line-height: 1;
     padding: 2px 5px;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
     flex-shrink: 0;
 }
 
 .queue-header__btn:hover {
-    background: rgba(167, 139, 250, 0.12);
-    border-color: rgba(167, 139, 250, 0.6);
-    color: rgba(167, 139, 250, 1);
+    background: var(--color-badge-ctrl-bg);
+    border-color: var(--color-badge-ctrl-bdr);
+    color: var(--color-badge-ctrl);
+    opacity: 1;
 }
 
 .queue-header__btn--active {
-    background: rgba(167, 139, 250, 0.15);
-    border-color: rgba(167, 139, 250, 0.7);
-    color: rgba(167, 139, 250, 1);
+    background: var(--color-badge-ctrl-bg);
+    border-color: var(--color-badge-ctrl-bdr);
+    color: var(--color-badge-ctrl);
+    opacity: 1;
 }

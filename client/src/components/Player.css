@@ -115,8 +115,8 @@
 .room-btn {
     padding: 10px 20px;
     background-color: #2a2a2a;
-    color: #1dcd26;
-    border: 1px solid #1dcd26;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
     border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
@@ -124,27 +124,26 @@
 }
 
 .room-btn:hover:not(:disabled) {
-    border-color: #008006;
+    border-color: var(--color-accent-hover);
 }
 
 .room-btn--create {
-    border-color: #4a9eff;
-    color: #4a9eff;
+    border-color: var(--color-accent);
+    color: var(--color-accent);
 }
 
 .room-btn--create:hover:not(:disabled) {
-    /*background-color: #4a9eff22;*/
-    border-color: #0054b8;
+    border-color: var(--color-accent-hover);
 }
 
 .room-btn--leave {
-    border-color: #ff4444;
-    color: #ff4444;
+    border-color: var(--color-danger);
+    color: var(--color-danger);
 }
 
 .room-btn--leave:hover:not(:disabled) {
-    background-color: #ff444422;
-    border-color: #ff4444;
+    background-color: var(--color-danger-dim);
+    border-color: var(--color-danger);
 }
 
 .room-btn:disabled {
@@ -220,7 +219,7 @@
 
 .url-submit {
     padding: 10px 20px;
-    background-color: #ff0000;
+    background-color: var(--color-accent);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -231,7 +230,7 @@
 }
 
 .url-submit:hover {
-    background-color: #cc0000;
+    background-color: var(--color-accent-hover);
 }
 
 .right-panel {
@@ -297,15 +296,15 @@
 }
 
 .toast--danger {
-    background: rgba(255, 68, 68, 0.15);
-    border: 1px solid rgba(255, 68, 68, 0.3);
-    color: #ff6b6b;
+    background: var(--color-danger-dim);
+    border: 1px solid var(--color-danger-border);
+    color: var(--color-danger-text);
 }
 
 .toast--success {
-    background: rgba(74, 222, 128, 0.12);
-    border: 1px solid rgba(74, 222, 128, 0.25);
-    color: #4ade80;
+    background: var(--color-success-dim);
+    border: 1px solid var(--color-success-border);
+    color: var(--color-success);
 }
 
 @keyframes toast-in {
@@ -372,7 +371,7 @@
 }
 
 .pw-modal__title--error {
-    color: #ff6b6b;
+    color: var(--color-danger-text);
 }
 
 .pw-modal__form {
