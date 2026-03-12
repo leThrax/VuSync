@@ -87,8 +87,9 @@
     align-items: center;
     gap: 8px;
     padding: 14px 16px;
-    background: rgba(10, 11, 20, 0.95);
-    border-top: 1px solid rgba(61, 142, 240, 0.1);
+    background: rgba(20, 22, 38, 0.95);
+    border-top: 1px solid rgba(61, 142, 240, 0.16);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .vusync-placeholder {

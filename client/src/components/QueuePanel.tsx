@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Shuffle, Repeat } from 'lucide-react'
 import type { QueueItem } from '../../../shared/types'
 import './QueuePanel.css'
@@ -19,6 +19,16 @@ interface QueuePanelProps {
 export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, onReorder, onShuffle, onClear, onSkip, loop, onLoop }: QueuePanelProps) {
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
     const dragIndexRef = useRef<number | null>(null)
+    const listRef = useRef<HTMLDivElement | null>(null)
+    const [atBottom, setAtBottom] = useState(false)
+
+    function checkAtBottom() {
+        const el = listRef.current
+        if (!el) return
+        setAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1)
+    }
+
+    useEffect(() => { checkAtBottom() }, [queue])
 
     const featured = queue[0]
     const rest = queue.slice(1)
@@ -95,7 +105,7 @@ export default function QueuePanel({ queue, hasControl, onRemove, onPlayItem, on
                     {rest.length > 0 && (
                         <>
                             <div className="queue-divider" />
-<div className="queue-list-fade"><div className="queue-panel__list">
+<div className={`queue-list-fade${atBottom ? ' queue-list-fade--bottom' : ''}`}><div className="queue-panel__list" ref={listRef} onScroll={checkAtBottom}>
                                 {rest.map((item, i) => (
                                     <div
                                         key={`${item.videoId}-${i + 1}`}

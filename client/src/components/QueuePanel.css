@@ -1,9 +1,10 @@
 .queue-panel {
     width: 320px;
-    background: rgba(10, 11, 20, 0.88);
+    background: rgba(20, 22, 38, 0.92);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(61, 142, 240, 0.1);
+    border: 1px solid rgba(61, 142, 240, 0.16);
     border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -18,7 +19,7 @@
     letter-spacing: 0.08em;
     padding-bottom: 8px;
     margin-bottom: 4px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -34,7 +35,7 @@
     position: relative;
 }
 
-.queue-list-fade::after {
+.queue-list-fade:not(.queue-list-fade--bottom)::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -66,7 +67,7 @@
 }
 
 .queue-item:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.02);
     border-radius: 4px;
 }
 
@@ -120,25 +121,34 @@
 }
 
 .queue-item__btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: none;
+    border: 1px solid transparent;
     border-radius: 4px;
-    color: #aaa;
     cursor: pointer;
     font-size: 11px;
     padding: 3px 6px;
     line-height: 1;
-    transition: background 0.1s, color 0.1s;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+
+.queue-item__btn--play {
+    background-color: var(--color-accent);
+    color: #fff;
 }
 
 .queue-item__btn--play:hover {
-    background: var(--color-accent-dim);
-    color: var(--color-accent);
+    background-color: var(--color-accent-hover);
+}
+
+.queue-item__btn--remove {
+    background: none;
+    border-color: var(--color-danger);
+    color: var(--color-danger);
 }
 
 .queue-item__btn--remove:hover {
     background: var(--color-danger-dim);
-    color: var(--color-danger-text);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
 }
 
 .queue-empty {
