@@ -14,6 +14,7 @@ const isProd = process.env.NODE_ENV === 'production';
 const startTime = Date.now();
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(isProd ? cors({ origin: false }) : cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

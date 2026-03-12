@@ -11,6 +11,10 @@ declare module 'express-session' {
     }
 }
 
+const loginAttempts = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 10
+const RATE_WINDOW_MS = 15 * 60 * 1000
+
 export function createAdminRouter(config: VuSyncConfig, startTime: number) {
     const router = Router()
 
@@ -40,12 +44,26 @@ export function createAdminRouter(config: VuSyncConfig, startTime: number) {
     })
 
     router.post('/login', async (req, res) => {
+        const ip = req.ip ?? '?'
+        const now = Date.now()
+        const entry = loginAttempts.get(ip)
+        if (entry && now < entry.resetAt) {
+            if (entry.count >= RATE_LIMIT) {
+                res.send(renderLogin({ error: 'Too many login attempts. Try again in 15 minutes.' }))
+                return
+            }
+            entry.count++
+        } else {
+            loginAttempts.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS })
+        }
+
         const { username, password } = req.body as { username?: string; password?: string }
         const validUser = username === config.admin.username
         const validPass = config.admin.passwordHash && password
             ? await bcrypt.compare(password, config.admin.passwordHash)
             : false
         if (validUser && validPass) {
+            loginAttempts.delete(ip)
             req.session.adminAuthenticated = true
             res.redirect('/admin')
         } else {

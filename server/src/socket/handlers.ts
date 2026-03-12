@@ -44,7 +44,7 @@ export function removeFromRoom(socketId: string): void {
     if (room.users.length === 0) {
         rooms.delete(roomId)
         roomPasswords.delete(roomId)
-        console.log(`Room ${roomId} deleted (empty)`)
+        console.log(`Room ${roomId} deleted (last user: ${socketId})`)
         return
     }
 
@@ -63,7 +63,8 @@ export function removeFromRoom(socketId: string): void {
 export function setupSocketHandlers(io: Server): void {
     _io = io
     io.on('connection', (socket: Socket) => {
-        console.log(`User connected: ${socket.id}`)
+        const ip = socket.handshake.address
+        console.log(`User connected: ${socket.id} (${ip})`)
 
         socket.on(EVENTS.CREATE_ROOM, (payload: { name: string; userName: string }) => {
             const roomId = generateId()
@@ -85,7 +86,7 @@ export function setupSocketHandlers(io: Server): void {
             socketRooms.set(socket.id, roomId)
             socket.join(roomId)
             socket.emit(EVENTS.ROOM_UPDATE, room)
-            console.log(`Room created: ${roomId} by ${payload.userName}`)
+            console.log(`Room created: ${roomId} by ${payload.userName} (${ip})`)
         })
 
         socket.on(EVENTS.JOIN_ROOM, (payload: { roomId: string; userName: string; password?: string }) => {
@@ -120,7 +121,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
-            console.log(`${payload.userName} joined room ${payload.roomId}, notifying ${room.users.map(u => u.id).join(', ')}`)
+            console.log(`${payload.userName} (${ip}) joined room ${payload.roomId}`)
         })
 
         socket.on(EVENTS.LEAVE_ROOM, () => {
@@ -324,7 +325,7 @@ export function setupSocketHandlers(io: Server): void {
         })
 
         socket.on('disconnect', () => {
-            console.log(`User disconnected: ${socket.id}`)
+            console.log(`User disconnected: ${socket.id} (${ip})`)
             removeFromRoom(socket.id)
         })
     })
