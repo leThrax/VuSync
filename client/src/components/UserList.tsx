@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Zap, Gamepad2 } from 'lucide-react'
+import { Zap, Gamepad2, UserX } from 'lucide-react'
 import type { Room } from '../../../shared/types'
 import './UserList.css'
 
@@ -62,7 +62,7 @@ export default function UserList({ room, socketId, currentName, onChangeName, on
                                     {isHost && <span className="badge badge--host"><Zap size={11} strokeWidth={2} /></span>}
                                     {user.canControl && !isHost && <span className="badge badge--ctrl"><Gamepad2 size={11} strokeWidth={2} /></span>}
                                     {currentUserIsHost && !isMe && (
-                                        <button className="kick-btn" onClick={e => { e.stopPropagation(); onKick(user.id) }} title="Kick">❌</button>
+                                        <button className="kick-btn" onClick={e => { e.stopPropagation(); onKick(user.id) }} title="Kick"><UserX size={12} strokeWidth={2} /></button>
                                     )}
                                 </div>
                             </div>

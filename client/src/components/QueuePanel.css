@@ -1,8 +1,8 @@
 .queue-panel {
     width: 320px;
-    background: rgba(18, 18, 18, 0.88);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(10, 11, 20, 0.88);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(61, 142, 240, 0.1);
     border-radius: 10px;
     padding: 10px;
     display: flex;
@@ -25,12 +25,33 @@
     justify-content: space-between;
 }
 
+.queue-panel__body {
+    display: flex;
+    flex-direction: column;
+}
+
+.queue-list-fade {
+    position: relative;
+}
+
+.queue-list-fade::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, rgba(10, 11, 20, 0.92));
+    pointer-events: none;
+    border-radius: 0 0 4px 4px;
+}
+
 .queue-panel__list {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    max-height: 400px; /* ~10 compact items */
     overflow-y: auto;
-    max-height: 594px; /* 15 items × 34px thumb + 14 gaps × 6px */
     scrollbar-width: thin;
     scrollbar-color: #333 transparent;
 }
@@ -121,10 +142,10 @@
 }
 
 .queue-empty {
-    font-size: 13px;
-    color: #444;
+    font-size: 12px;
+    color: #3a3a4a;
     text-align: center;
-    margin: 4px 0 2px;
+    margin: 6px 0 4px;
 }
 
 .queue-panel__footer {
@@ -151,62 +172,134 @@
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
+.queue-panel__footer-btn--skip {
+    background-color: var(--color-accent);
+    color: #fff;
+    border-color: transparent;
+}
+
+.queue-panel__footer-btn--skip:hover {
+    background-color: var(--color-accent-hover);
+    border-color: transparent;
+}
+
 .queue-panel__footer-btn--clear {
-    border-color: var(--color-danger-border);
-    color: var(--color-danger-text);
-    opacity: 0.6;
+    background: none;
+    border-color: var(--color-danger);
+    color: var(--color-danger);
 }
 
 .queue-panel__footer-btn--clear:hover {
     background: var(--color-danger-dim);
-    border-color: var(--color-danger-border);
-    color: var(--color-danger-text);
-    opacity: 1;
+    border-color: var(--color-danger);
+    color: var(--color-danger);
 }
 
-.queue-panel__footer-btn--skip {
-    border-color: var(--color-accent-border);
-    color: var(--color-accent);
-    opacity: 0.6;
-}
-
-.queue-panel__footer-btn--skip:hover {
-    background: var(--color-accent-dim);
-    border-color: var(--color-accent-border);
-    color: var(--color-accent);
-    opacity: 1;
-}
-
-.queue-header__actions {
+.queue-header__pill {
     display: flex;
-    align-items: center;
-    gap: 4px;
+    align-items: stretch;
+    border: 1px solid var(--color-accent-border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--color-accent-dim);
 }
 
 .queue-header__btn {
     background: none;
-    border: 1px solid var(--color-badge-ctrl-bdr);
-    border-radius: 4px;
-    color: var(--color-badge-ctrl);
-    opacity: 0.6;
+    border: none;
+    border-left: 1px solid var(--color-accent-border);
+    color: var(--color-accent);
     cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    padding: 2px 5px;
-    transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 7px;
+    transition: background 0.15s, color 0.15s;
     flex-shrink: 0;
 }
 
+.queue-header__btn:first-child {
+    border-left: none;
+}
+
 .queue-header__btn:hover {
-    background: var(--color-badge-ctrl-bg);
-    border-color: var(--color-badge-ctrl-bdr);
-    color: var(--color-badge-ctrl);
-    opacity: 1;
+    background: rgba(61, 142, 240, 0.15);
 }
 
 .queue-header__btn--active {
-    background: var(--color-badge-ctrl-bg);
-    border-color: var(--color-badge-ctrl-bdr);
-    color: var(--color-badge-ctrl);
-    opacity: 1;
+    background: var(--color-badge-ctrl);
+    color: #fff;
+}
+
+.queue-header__btn--active:hover {
+    background: var(--color-badge-ctrl);
+    color: #fff;
+}
+
+/* ── Featured "up next" card ─────────────────────── */
+.queue-featured {
+    border-radius: 6px;
+    overflow: hidden;
+    border-top: 2px solid transparent;
+    transition: border-color 0.1s;
+    flex-shrink: 0;
+}
+
+.queue-featured[draggable="true"] { cursor: grab; }
+.queue-featured[draggable="true"]:active { cursor: grabbing; }
+.queue-featured.queue-item--drag-over { border-top-color: var(--color-drag-indicator); }
+
+.queue-featured__thumb-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.queue-featured__thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 6px;
+    background: #111;
+}
+
+.queue-featured__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transition: opacity 0.15s;
+    border-radius: 6px;
+}
+
+.queue-featured:hover .queue-featured__overlay { opacity: 1; }
+
+.queue-featured__overlay .queue-item__btn {
+    font-size: 14px;
+    padding: 6px 10px;
+}
+
+.queue-featured__title {
+    margin: 6px 2px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #ddd;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ── Compact list divider ────────────────────────── */
+.queue-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 6px 0;
+    flex-shrink: 0;
 }

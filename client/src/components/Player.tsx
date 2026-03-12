@@ -10,6 +10,7 @@ import UserList from './UserList'
 import QueuePanel from './QueuePanel'
 import GradientText from './GradientText'
 import logoSrc from '../assets/VuSync-logo.png'
+import { LogOut } from 'lucide-react'
 import './Player.css'
 
 interface Toast { id: number; message: string; side: 'left' | 'right'; type: 'danger' | 'success' }
@@ -463,7 +464,7 @@ export default function Player() {
                             <YouTube
                                 videoId={videoId}
                                 className="youtube-player"
-                                opts={{ width: '100%', height: '100%' }}
+                                opts={{ width: '100%', height: '100%', playerVars: { rel: 0, modestbranding: 1 } }}
                                 onReady={handleReady}
                                 onPlay={handlePlay}
                                 onPause={handlePause}
@@ -485,7 +486,7 @@ export default function Player() {
                     onKick={handleKick}
                     onGrantControl={emitGrantControl}
                 />
-                {inRoom && (
+                {inRoom && (room.queue.length > 0 || hasControl) && (
                     <QueuePanel
                         queue={room.queue}
                         hasControl={hasControl}
@@ -526,7 +527,7 @@ export default function Player() {
                                     <div className="lock-btn-wrap">
                                         <button
                                             type="button"
-                                            className="lock-btn"
+                                            className={`lock-btn${room.hasPassword ? ' lock-btn--locked' : ''}`}
                                             onClick={() => { setPasswordInput(''); setSetPasswordModalOpen(true) }}
                                             title={room.hasPassword ? 'Password set — click to change' : 'Set room password'}
                                         >
@@ -550,13 +551,13 @@ export default function Player() {
                                         className="url-queue-btn"
                                         onClick={handleQueueNext}
                                         disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
-                                    >Queue next</button>
+                                    >Play next</button>
                                     <button
                                         type="button"
                                         className="url-queue-btn"
                                         onClick={handleQueueLast}
                                         disabled={!hasControl || (!extractVideoId(urlInput) && !extractPlaylistId(urlInput)) || isValidating}
-                                    >Queue last</button>
+                                    >Add to end</button>
                                 </form>
                             </div>
                             <button
@@ -564,7 +565,7 @@ export default function Player() {
                                 className="room-btn room-btn--leave bar-row__leave"
                                 onClick={() => { addToast('Room left', 'left'); leaveRoom(); setVideoId('') }}
                             >
-                                Leave
+                                <LogOut size={16} strokeWidth={2} />
                             </button>
                     </div>
             </div>}
