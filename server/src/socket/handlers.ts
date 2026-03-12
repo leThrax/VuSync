@@ -63,7 +63,9 @@ export function removeFromRoom(socketId: string): void {
 export function setupSocketHandlers(io: Server): void {
     _io = io
     io.on('connection', (socket: Socket) => {
-        const ip = socket.handshake.address
+        const forwarded = socket.handshake.headers['x-forwarded-for']
+        const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]?.trim())
+            ?? socket.handshake.address
         console.log(`User connected: ${socket.id} (${ip})`)
 
         socket.on(EVENTS.CREATE_ROOM, (payload: { name: string; userName: string }) => {
