@@ -8,5 +8,11 @@
   "youtube": {
     "apiKey": ""
   },
-  "defaultVideoId": ""
+  "defaultVideoId": "",
+  "admin": {
+    "enabled": true,
+    "networkAccessible": false,
+    "username": "admin",
+    "passwordHash": ""
+  }
 }

@@ -3,14 +3,20 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
+import crypto from 'crypto';
+import session from 'express-session';
 import { config } from './config';
 import { setupSocketHandlers } from './socket/handlers';
+import { createAdminRouter } from './routes/admin';
+import { createAdminGate } from './admin/auth';
 
 const isProd = process.env.NODE_ENV === 'production';
+const startTime = Date.now();
 
 const app = express();
 app.use(isProd ? cors({ origin: false }) : cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -129,6 +135,24 @@ app.get('/api/playlist/:playlistId', async (req, res) => {
         res.json({ available: false, videos: [] });
     }
 });
+
+// Admin panel
+if (config.admin.networkAccessible && !config.admin.passwordHash) {
+    console.warn('[admin] networkAccessible is true but passwordHash is not set — admin panel disabled.');
+    config.admin.enabled = false;
+}
+if (config.admin.enabled) {
+    app.use(session({
+        secret: crypto.randomBytes(32).toString('hex'),
+        resave: false,
+        saveUninitialized: false,
+        cookie: { httpOnly: true, sameSite: 'strict', secure: isProd, maxAge: 8 * 60 * 60 * 1000 },
+    }));
+    const adminGate = createAdminGate(config.admin);
+    const adminRouter = createAdminRouter(config, startTime);
+    app.use('/admin', adminGate, adminRouter);
+    console.log(`[admin] Panel available at http://localhost:${config.server.port}/admin`);
+}
 
 // Setup WebSocket handlers
 setupSocketHandlers(io);

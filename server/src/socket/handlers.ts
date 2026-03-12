@@ -16,15 +16,52 @@ async function fetchVideoTitle(videoId: string): Promise<string> {
     }
 }
 
-const rooms = new Map<string, Room>()
-const socketRooms = new Map<string, string>() // socketId → roomId
+export const rooms = new Map<string, Room>()
+export const socketRooms = new Map<string, string>() // socketId → roomId
 const roomPasswords = new Map<string, string>() // roomId → plain-text password
+
+let _io: Server | null = null
+export function getIo(): Server | null { return _io }
 
 function generateId(): string {
     return Math.random().toString(36).slice(2, 9)
 }
 
+export function removeFromRoom(socketId: string): void {
+    const io = _io
+    if (!io) return
+    const roomId = socketRooms.get(socketId)
+    if (!roomId) return
+    const room = rooms.get(roomId)
+    if (!room) return
+
+    io.sockets.sockets.get(socketId)?.leave(roomId)
+
+    const leavingUser = room.users.find((u: User) => u.id === socketId)
+    room.users = room.users.filter((u: User) => u.id !== socketId)
+    socketRooms.delete(socketId)
+
+    if (room.users.length === 0) {
+        rooms.delete(roomId)
+        roomPasswords.delete(roomId)
+        console.log(`Room ${roomId} deleted (empty)`)
+        return
+    }
+
+    if (room.hostId === socketId) {
+        room.hostId = room.users[0].id
+        delete room.users[0].canControl
+        console.log(`Host transferred in room ${roomId} to ${room.hostId}`)
+    }
+
+    for (const u of room.users) {
+        io.to(u.id).emit(EVENTS.USER_LEFT, { userId: socketId, userName: leavingUser?.name ?? 'Someone' })
+        io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+    }
+}
+
 export function setupSocketHandlers(io: Server): void {
+    _io = io
     io.on('connection', (socket: Socket) => {
         console.log(`User connected: ${socket.id}`)
 
@@ -292,36 +329,4 @@ export function setupSocketHandlers(io: Server): void {
         })
     })
 
-    function removeFromRoom(socketId: string): void {
-        const roomId = socketRooms.get(socketId)
-        if (!roomId) return
-        const room = rooms.get(roomId)
-        if (!room) return
-
-        // Leave the Socket.IO room so socket.to(roomId) no longer reaches this socket
-        io.sockets.sockets.get(socketId)?.leave(roomId)
-
-        const leavingUser = room.users.find((u: User) => u.id === socketId)
-        room.users = room.users.filter((u: User) => u.id !== socketId)
-        socketRooms.delete(socketId)
-
-        if (room.users.length === 0) {
-            rooms.delete(roomId)
-            roomPasswords.delete(roomId)
-            console.log(`Room ${roomId} deleted (empty)`)
-            return
-        }
-
-        // Transfer host to next user if the host left
-        if (room.hostId === socketId) {
-            room.hostId = room.users[0].id
-            delete room.users[0].canControl
-            console.log(`Host transferred in room ${roomId} to ${room.hostId}`)
-        }
-
-        for (const u of room.users) {
-            io.to(u.id).emit(EVENTS.USER_LEFT, { userId: socketId, userName: leavingUser?.name ?? 'Someone' })
-            io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
-        }
-    }
 }
