@@ -147,7 +147,7 @@ if (config.admin.enabled) {
         secret: crypto.randomBytes(32).toString('hex'),
         resave: false,
         saveUninitialized: false,
-        cookie: { httpOnly: true, sameSite: 'strict', secure: isProd, maxAge: 8 * 60 * 60 * 1000 },
+        cookie: { httpOnly: true, sameSite: 'strict', secure: 'auto', maxAge: 8 * 60 * 60 * 1000 },
     }));
     const adminGate = createAdminGate(config.admin);
     const adminRouter = createAdminRouter(config, startTime);
