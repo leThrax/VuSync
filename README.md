@@ -115,16 +115,44 @@ cp vusync.config.example.json vusync.config.json
   "youtube": {
     "apiKey": ""
   },
-  "defaultVideoId": ""
+  "defaultVideoId": "",
+  "admin": {
+    "enabled": true,
+    "networkAccessible": false,
+    "username": "admin",
+    "passwordHash": ""
+  }
 }
 ```
 
-| Field            | Description                                                              |
-|------------------|--------------------------------------------------------------------------|
-| `server.port`    | Port the backend listens on (default `3001`)                             |
-| `client.port`    | Port Vite's dev server uses (default `5173`)                             |
-| `youtube.apiKey` | YouTube Data API v3 key — leave empty to use the RSS fallback            |
-| `defaultVideoId` | YouTube video ID shown before any video is loaded (leave empty for none) |
+| Field                      | Description                                                                        |
+|----------------------------|------------------------------------------------------------------------------------|
+| `server.port`              | Port the backend listens on (default `3001`)                                       |
+| `client.port`              | Port Vite's dev server uses (default `5173`)                                       |
+| `youtube.apiKey`           | YouTube Data API v3 key — leave empty to use the RSS fallback                      |
+| `defaultVideoId`           | YouTube video ID shown before any video is loaded (leave empty for none)           |
+| `admin.enabled`            | Enable or disable the admin panel at `/admin`                                      |
+| `admin.networkAccessible`  | Allow access from outside localhost — keep `false` unless behind a trusted proxy   |
+| `admin.username`           | Admin login username                                                               |
+| `admin.passwordHash`       | bcrypt hash of the admin password — see below for how to generate it               |
+
+### Generating an admin password hash
+
+The admin password is stored as a bcrypt hash — never in plain text. Generate one with:
+
+```bash
+npm run admin:hash-password -- yourpassword
+```
+
+Copy the printed hash and paste it into `vusync.config.json`:
+
+```json
+"admin": {
+  "enabled": true,
+  "username": "admin",
+  "passwordHash": "$2a$12$..."
+}
+```
 
 > [!NOTE]
 > In most cases changing the client port won't be necessary as only the server port is being exposed when built for production
@@ -257,7 +285,6 @@ Ideas being considered — contributions welcome:
 - [ ] **Mobile layout** — responsive design for phones and tablets
 - [ ] **Volume sync** — optional opt-in to synchronize volume level across viewers
 - [ ] **Watch history** — per-room log of previously played videos with one-click re-queue
-- [ ] **Room persistence** — survive server restarts by persisting room state to disk or Redis
 - [ ] **Docker image** — official `docker-compose.yml` for one-command self-hosting
 - [ ] **Invite link generator** — copyable URL pre-filled with room code
 
