@@ -20,6 +20,7 @@ export interface UseSyncReturn {
     emitChangeName: (newName: string) => void
     emitKickUser: (targetId: string) => void
     emitGrantControl: (targetId: string) => void
+    emitTransferHost: (targetId: string) => void
     emitQueueAdd: (videoId: string, position: 'next' | 'last') => void
     emitQueueAddBulk: (items: QueueItem[], position: 'next' | 'last') => void
     emitQueueClear: () => void
@@ -282,6 +283,11 @@ export function useSync(
         socket.emit(EVENTS.GRANT_CONTROL, { roomId: room.id, targetId })
     }
 
+    function emitTransferHost(targetId: string) {
+        if (!room || !isHost) return
+        socket.emit(EVENTS.TRANSFER_HOST, { roomId: room.id, targetId })
+    }
+
     function emitQueueAdd(videoId: string, position: 'next' | 'last') {
         if (!room || !hasControl) return
         socket.emit(EVENTS.QUEUE_ADD, { roomId: room.id, videoId, position })
@@ -329,5 +335,5 @@ export function useSync(
         setRoom(null)
     }
 
-    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, emitSetLoop, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
+    return { isConnected, room, isHost, hasControl, socketId: socket.id, emitPlay, emitPause, emitSeek, emitChangeVideo, emitChangeName, emitKickUser, emitGrantControl, emitTransferHost, emitQueueAdd, emitQueueAddBulk, emitQueueClear, emitQueueAdvance, emitQueueRemove, emitQueuePlayItem, emitQueueReorder, emitQueueShuffle, emitSetPassword, emitSetLoop, programmaticSeekRef, createRoom, joinRoom, leaveRoom }
 }

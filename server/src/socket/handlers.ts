@@ -3,6 +3,7 @@ import { EVENTS } from '../../../shared/constants'
 import type { Room, User, PlayerState, QueueItem, ChatMessage } from '../../../shared/types'
 import { config } from '../config'
 import { logger } from '../logger'
+import { savePermanentRooms, loadPermanentRooms } from '../persistence'
 
 async function fetchVideoTitle(videoId: string): Promise<string> {
     try {
@@ -19,7 +20,16 @@ async function fetchVideoTitle(videoId: string): Promise<string> {
 
 export const rooms = new Map<string, Room>()
 export const socketRooms = new Map<string, string>() // socketId → roomId
-const roomPasswords = new Map<string, string>() // roomId → plain-text password
+export const roomPasswords = new Map<string, string>() // roomId → plain-text password
+
+// Seed maps with persisted permanent rooms on startup
+const _persisted = loadPermanentRooms()
+for (const room of _persisted.rooms) rooms.set(room.id, room)
+for (const [id, pw] of _persisted.passwords) roomPasswords.set(id, pw)
+
+export function saveRooms(): void {
+    savePermanentRooms(rooms, roomPasswords)
+}
 
 let _io: Server | null = null
 export function getIo(): Server | null { return _io }
@@ -47,6 +57,7 @@ export function removeFromRoom(socketId: string): void {
             room.hostId = ''
             room.playerState = { ...room.playerState, isPlaying: false, lastUpdated: Date.now() }
             logger.info(`Room ${roomId} is empty but permanent — keeping alive`)
+            saveRooms()
             return
         }
         rooms.delete(roomId)
@@ -155,6 +166,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.SET_LOOP, (payload: { roomId: string; loop: boolean }) => {
@@ -164,6 +176,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         function hasControl(room: Room): boolean {
@@ -196,6 +209,7 @@ export function setupSocketHandlers(io: Server): void {
             if (!room || !hasControl(room)) return
             room.playerState = { isPlaying: false, currentTime: 0, videoId: payload.videoId, lastUpdated: Date.now() }
             socket.to(payload.roomId).emit(EVENTS.CHANGE_VIDEO, room.playerState)
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_ADD, async (payload: { roomId: string; videoId: string; position: 'next' | 'last' }) => {
@@ -211,6 +225,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_ADD_BULK, (payload: { roomId: string; items: QueueItem[]; position: 'next' | 'last' }) => {
@@ -224,6 +239,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_CLEAR, (payload: { roomId: string }) => {
@@ -233,6 +249,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_ADVANCE, (payload: { roomId: string }) => {
@@ -246,6 +263,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_REMOVE, (payload: { roomId: string; index: number }) => {
@@ -255,6 +273,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_PLAY_ITEM, (payload: { roomId: string; index: number }) => {
@@ -267,6 +286,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_REORDER, (payload: { roomId: string; fromIndex: number; toIndex: number }) => {
@@ -280,6 +300,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.QUEUE_SHUFFLE, (payload: { roomId: string }) => {
@@ -292,6 +313,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         socket.on(EVENTS.GRANT_CONTROL, (payload: { roomId: string; targetId: string }) => {
@@ -311,6 +333,17 @@ export function setupSocketHandlers(io: Server): void {
             if (!room || room.hostId !== socket.id) return
             room.playerState = { ...payload.playerState, lastUpdated: Date.now() }
             socket.to(payload.roomId).emit(EVENTS.SYNC_STATE, room.playerState)
+        })
+
+        socket.on(EVENTS.TRANSFER_HOST, (payload: { roomId: string; targetId: string }) => {
+            const room = rooms.get(payload.roomId)
+            if (!room || room.hostId !== socket.id) return
+            const target = room.users.find(u => u.id === payload.targetId)
+            if (!target || payload.targetId === socket.id) return
+            room.hostId = payload.targetId
+            delete target.canControl
+            for (const u of room.users) io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
+            logger.info(`Host transferred in room ${payload.roomId} to ${payload.targetId}`)
         })
 
         socket.on(EVENTS.KICK_USER, (payload: { roomId: string; targetId: string }) => {

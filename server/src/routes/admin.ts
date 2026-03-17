@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import * as fs from 'fs'
 import bcrypt from 'bcryptjs'
-import { rooms, getIo, removeFromRoom } from '../socket/handlers'
+import { rooms, getIo, removeFromRoom, saveRooms } from '../socket/handlers'
 import { EVENTS } from '../../../shared/constants'
 import { renderDashboard, renderRoomList, renderRoomDetail, renderLogin, renderConfig, renderLogs } from '../admin/ui'
 import type { VuSyncConfig } from '../config'
@@ -189,7 +189,8 @@ export function createAdminRouter(config: VuSyncConfig, startTime: number) {
         }
         room.permanent = !room.permanent
         logger.info(`Room ${room.id} permanent flag set to ${room.permanent} by admin`)
-        res.redirect('/admin/rooms')
+        saveRooms()
+        res.redirect(`/admin/rooms/${req.params.id}`)
     })
 
     // ── Transfer host ──────────────────────────────────────────────────────
@@ -252,6 +253,7 @@ export function createAdminRouter(config: VuSyncConfig, startTime: number) {
         }
         // If room was permanent and now empty, ensure it's gone
         if (rooms.has(room.id)) rooms.delete(room.id)
+        saveRooms()
         res.redirect('/admin/rooms')
     })
 

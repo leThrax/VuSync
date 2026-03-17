@@ -567,7 +567,7 @@ export function renderRoomDetail(room: Room): string {
         ? `<form method="POST" action="/admin/rooms/${e(room.id)}/pause" style="display:inline"><button type="submit" class="btn btn-warn">Force pause</button></form>`
         : '<span style="color:#444;font-size:13px">Playback already paused</span>'}</span>
       <form method="POST" action="/admin/rooms/${e(room.id)}/permanent" style="display:inline">
-        <button type="submit" class="btn ${room.permanent ? 'btn-warn' : 'btn-ghost'}">${room.permanent ? `${LOCK_SVG} Unpin room` : `${LOCK_OPEN_SVG} Make permanent`}</button>
+        <button type="submit" class="btn ${room.permanent ? 'btn-warn' : 'btn-ghost'} btn-sm btn-act" title="${room.permanent ? 'Remove permanent' : 'Make permanent'}">${room.permanent ? LOCK_SVG : LOCK_OPEN_SVG}</button>
       </form>
       <form method="POST" action="/admin/rooms/${e(room.id)}/close" style="display:inline" onsubmit="return confirm('Close room ${e(room.name)}? All users will be disconnected.')">
         <button type="submit" class="btn btn-danger">Close room</button>

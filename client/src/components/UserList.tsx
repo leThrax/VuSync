@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Zap, Gamepad2, UserX } from 'lucide-react'
+import { Zap, Gamepad2, UserX, Crown } from 'lucide-react'
 import type { Room } from '../../../shared/types'
 import './UserList.css'
 
@@ -10,9 +10,10 @@ interface UserListProps {
     onChangeName: (name: string) => void
     onKick: (targetId: string) => void
     onGrantControl: (targetId: string) => void
+    onTransferHost: (targetId: string) => void
 }
 
-export default function UserList({ room, socketId, currentName, onChangeName, onKick, onGrantControl }: UserListProps) {
+export default function UserList({ room, socketId, currentName, onChangeName, onKick, onGrantControl, onTransferHost }: UserListProps) {
     const currentUserIsHost = room !== null && room.hostId === socketId
     const [input, setInput] = useState('')
 
@@ -61,6 +62,9 @@ export default function UserList({ room, socketId, currentName, onChangeName, on
                                 <div className="user-entry__right">
                                     {isHost && <span className="badge badge--host"><Zap size={11} strokeWidth={2} /></span>}
                                     {user.canControl && !isHost && <span className="badge badge--ctrl"><Gamepad2 size={11} strokeWidth={2} /></span>}
+                                    {currentUserIsHost && !isMe && !isHost && (
+                                        <button className="transfer-btn" onClick={e => { e.stopPropagation(); onTransferHost(user.id) }} title="Transfer host"><Crown size={12} strokeWidth={2} /></button>
+                                    )}
                                     {currentUserIsHost && !isMe && (
                                         <button className="kick-btn" onClick={e => { e.stopPropagation(); onKick(user.id) }} title="Kick"><UserX size={12} strokeWidth={2} /></button>
                                     )}

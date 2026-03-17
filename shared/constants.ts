@@ -36,6 +36,7 @@ export const EVENTS = {
     KICK_USER: 'user:kick',
     KICKED: 'user:kicked',
     GRANT_CONTROL: 'user:grantControl',
+    TRANSFER_HOST: 'user:transferHost',
 } as const;
 
 export const DEFAULT_PORT = 3001;

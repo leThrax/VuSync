@@ -1,6 +1,7 @@
 node_modules/
 vusync.config.json
 server/dist/
+server/data/
 client/dist/
 shared/constants.js
 shared/constants.d.ts
