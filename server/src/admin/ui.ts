@@ -1,4 +1,8 @@
 import type { Room, User, QueueItem } from '../../../shared/types'
+import type { LogEntry } from '../logger'
+
+const LOCK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+const LOCK_OPEN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`
 
 const CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
@@ -18,10 +22,19 @@ h1{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
 .page-sub{font-size:13px;color:#555;margin-bottom:28px}
 .card{background:#14162a;border:1px solid rgba(61,142,240,0.16);border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.4);padding:20px;margin-bottom:20px}
 .card-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:28px}
+.stats-row{display:grid;gap:16px;margin-bottom:12px}
+.stats-row-1{grid-template-columns:repeat(3,1fr)}
+.stats-row-2{grid-template-columns:repeat(2,1fr);margin-bottom:28px}
 .stat{background:#14162a;border:1px solid rgba(61,142,240,0.16);border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.4);padding:20px 24px}
 .stat-value{font-size:30px;font-weight:700;color:#3d8ef0;line-height:1}
 .stat-label{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-top:6px}
+.stat-clickable{cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;user-select:none}
+.stat-clickable:hover{border-color:rgba(61,142,240,0.4);box-shadow:0 4px 24px rgba(61,142,240,0.08)}
+.stat-hint{font-size:10px;color:#3a3a4a;margin-top:4px}
+.graph-wrap{display:none;grid-column:1/-1;background:#14162a;border:1px solid rgba(61,142,240,0.16);border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.4);padding:16px 20px;margin-bottom:28px}
+.graph-wrap.open{display:block}
+.graph-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+canvas{width:100%;height:120px;display:block}
 table{width:100%;border-collapse:collapse}
 th{text-align:left;font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.08em;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap}
 td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;vertical-align:middle}
@@ -34,6 +47,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02)}
 .badge-ctrl{background:rgba(139,124,248,0.12);color:#8b7cf8;border:1px solid rgba(139,124,248,0.25)}
 .badge-playing{background:rgba(62,201,122,0.12);color:#3ec97a;border:1px solid rgba(62,201,122,0.25)}
 .badge-paused{background:rgba(255,255,255,0.05);color:#555;border:1px solid rgba(255,255,255,0.08)}
+.badge-perm{background:rgba(232,160,32,0.13);color:#e8a020;border:1px solid rgba(232,160,32,0.25)}
 .mono{font-family:monospace;font-size:12px;color:#aaa}
 .btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;transition:background 0.1s,color 0.1s;text-decoration:none}
 .btn:hover{text-decoration:none}
@@ -45,8 +59,9 @@ tbody tr:hover td{background:rgba(255,255,255,0.02)}
 .btn-warn:hover{background:rgba(232,160,32,0.1)}
 .btn-ghost{background:none;border:1px solid rgba(255,255,255,0.1);color:#888}
 .btn-ghost:hover{border-color:rgba(255,255,255,0.25);color:#ddd}
-.btn-sm{font-size:11px;padding:3px 8px}
-.actions{display:flex;gap:6px;align-items:center}
+.btn-sm{font-size:11px;padding:3px 8px;height:26px;line-height:1}
+.btn-act{min-width:52px;justify-content:center}
+.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .empty{font-size:13px;color:#3a3a4a;text-align:center;padding:24px}
 .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#555;margin-bottom:20px;transition:color 0.1s}
 .back:hover{color:#ddd;text-decoration:none}
@@ -67,6 +82,16 @@ tbody tr:hover td{background:rgba(255,255,255,0.02)}
 .form-input::placeholder{color:#333}
 .form-error{background:rgba(240,80,80,0.1);border:1px solid rgba(240,80,80,0.3);color:#f47070;border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:16px}
 .btn-block{width:100%;padding:9px}
+/* Logs */
+.log-box{background:#0a0a0c;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:12px;height:240px;overflow-y:auto;font-family:monospace;font-size:12px;line-height:1.6}
+.log-box-full{height:480px}
+.log-line{white-space:pre-wrap;word-break:break-all}
+.log-info{color:#7a7a8c}
+.log-warn{color:#e8a020}
+.log-error{color:#f05050}
+.log-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.filter-btn{background:none;border:1px solid rgba(255,255,255,0.1);color:#666;cursor:pointer;font-size:11px;padding:3px 10px;border-radius:4px;transition:all 0.1s}
+.filter-btn.active{border-color:rgba(61,142,240,0.5);color:#3d8ef0;background:rgba(61,142,240,0.08)}
 `
 
 function e(str: string | number): string {
@@ -83,6 +108,7 @@ function layout(title: string, content: string, showNav = true): string {
   <span class="nav-brand">Vu<span>Sync</span> Admin</span>
   <a href="/admin" class="nav-link">Dashboard</a>
   <a href="/admin/rooms" class="nav-link">Rooms</a>
+  <a href="/admin/logs" class="nav-link">Logs</a>
   <a href="/admin/config" class="nav-link">Config</a>
   <div class="nav-spacer"></div>
   <form method="POST" action="/admin/logout" style="display:inline">
@@ -153,7 +179,7 @@ export function renderDashboard(opts: { rooms: number; users: number; startTime:
 </div>
 <p class="page-sub">VuSync server status</p>
 
-<div class="stats">
+<div class="stats-row stats-row-1">
   <div class="stat">
     <div class="stat-value" id="stat-rooms">${e(opts.rooms)}</div>
     <div class="stat-label">Active Rooms</div>
@@ -166,25 +192,52 @@ export function renderDashboard(opts: { rooms: number; users: number; startTime:
     <div class="stat-value uptime" id="stat-uptime">—</div>
     <div class="stat-label">Server Uptime</div>
   </div>
-  <div class="stat">
+</div>
+
+<div class="stats-row stats-row-2">
+  <div class="stat stat-clickable" id="stat-ram-card" onclick="toggleGraph('ram')">
     <div class="stat-value" id="stat-ram">— <span style="font-size:16px;color:#8b7cf8">MB</span></div>
     <div class="stat-label">RAM Usage</div>
+    <div class="stat-hint">Click to view graph</div>
   </div>
-  <div class="stat">
+  <div class="stat stat-clickable" id="stat-cpu-card" onclick="toggleGraph('cpu')">
     <div class="stat-value" id="stat-cpu">—<span style="font-size:16px;color:#8b7cf8">%</span></div>
     <div class="stat-label">CPU Usage</div>
+    <div class="stat-hint">Click to view graph</div>
   </div>
+</div>
+
+<div class="graph-wrap" id="graph-panel">
+  <div class="graph-title" id="graph-title">RAM Usage</div>
+  <canvas id="graph-canvas" width="900" height="120"></canvas>
 </div>
 
 <div class="card">
   <div class="card-title">Quick actions</div>
   <div class="actions">
     <a href="/admin/rooms" class="btn btn-primary">View all rooms</a>
+    <a href="/admin/logs" class="btn btn-ghost">View logs</a>
     <a href="/admin/config" class="btn btn-ghost">View config</a>
   </div>
 </div>
 
+<div class="card">
+  <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+    <span>Recent Logs</span>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="btn btn-ghost btn-sm" onclick="clearLogDisplay()">Clear display</button>
+      <label style="font-size:11px;color:#555;cursor:pointer;display:flex;align-items:center;gap:4px">
+        <input type="checkbox" id="log-autoscroll" checked style="cursor:pointer"> Auto-scroll
+      </label>
+    </div>
+  </div>
+  <div class="log-box" id="log-box"></div>
+</div>
+
 <script>
+let historyData = []
+let activeGraph = null
+
 function fmtUptime(ms) {
   const s = Math.floor(ms / 1000)
   const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60)
@@ -194,6 +247,7 @@ function fmtUptime(ms) {
   parts.push(m + 'm')
   return parts.join(' ')
 }
+
 async function pollStats() {
   try {
     const r = await fetch('/admin/api/stats')
@@ -202,8 +256,108 @@ async function pollStats() {
     document.getElementById('stat-uptime').textContent = fmtUptime(d.uptimeMs)
     document.getElementById('stat-ram').innerHTML = d.ramMb + ' <span style="font-size:16px;color:#8b7cf8">MB</span>'
     document.getElementById('stat-cpu').innerHTML = d.cpuPercent + '<span style="font-size:16px;color:#8b7cf8">%</span>'
+    historyData = d.history || []
+    if (activeGraph) drawGraph(activeGraph)
   } catch {}
 }
+
+function toggleGraph(type) {
+  const panel = document.getElementById('graph-panel')
+  const title = document.getElementById('graph-title')
+  if (activeGraph === type) {
+    activeGraph = null
+    panel.classList.remove('open')
+    document.getElementById('stat-ram-card').style.borderColor = ''
+    document.getElementById('stat-cpu-card').style.borderColor = ''
+    return
+  }
+  activeGraph = type
+  panel.classList.add('open')
+  title.textContent = type === 'ram' ? 'RAM Usage (MB)' : 'CPU Usage (%)'
+  document.getElementById('stat-ram-card').style.borderColor = type === 'ram' ? 'rgba(61,142,240,0.5)' : ''
+  document.getElementById('stat-cpu-card').style.borderColor = type === 'cpu' ? 'rgba(61,142,240,0.5)' : ''
+  drawGraph(type)
+}
+
+function drawGraph(type) {
+  const canvas = document.getElementById('graph-canvas')
+  const ctx = canvas.getContext('2d')
+  const W = canvas.offsetWidth || 860
+  const H = 120
+  canvas.width = W
+  canvas.height = H
+
+  const points = historyData.map(p => type === 'ram' ? p.ram : p.cpu)
+  if (points.length < 2) {
+    ctx.fillStyle = '#1a1c2e'
+    ctx.fillRect(0, 0, W, H)
+    ctx.fillStyle = '#3a3a4a'
+    ctx.font = '12px system-ui'
+    ctx.textAlign = 'center'
+    ctx.fillText('Not enough data yet', W / 2, H / 2)
+    return
+  }
+
+  const maxVal = type === 'ram' ? Math.max(...points) * 1.2 : 100
+  const minVal = 0
+  const range = maxVal - minVal || 1
+
+  ctx.clearRect(0, 0, W, H)
+  ctx.fillStyle = '#0d0f1e'
+  ctx.fillRect(0, 0, W, H)
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)'
+  ctx.lineWidth = 1
+  for (let i = 0; i <= 4; i++) {
+    const y = Math.round(H - (i / 4) * H) + 0.5
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke()
+  }
+
+  const pad = 4
+  const stepX = (W - pad * 2) / (points.length - 1)
+  const color = type === 'ram' ? '#8b7cf8' : '#3d8ef0'
+
+  // Fill
+  ctx.beginPath()
+  ctx.moveTo(pad, H - pad)
+  points.forEach((v, i) => {
+    const x = pad + i * stepX
+    const y = H - pad - ((v - minVal) / range) * (H - pad * 2)
+    if (i === 0) ctx.lineTo(x, y)
+    else ctx.lineTo(x, y)
+  })
+  ctx.lineTo(pad + (points.length - 1) * stepX, H - pad)
+  ctx.closePath()
+  const grad = ctx.createLinearGradient(0, 0, 0, H)
+  grad.addColorStop(0, color + '40')
+  grad.addColorStop(1, color + '05')
+  ctx.fillStyle = grad
+  ctx.fill()
+
+  // Line
+  ctx.beginPath()
+  ctx.strokeStyle = color
+  ctx.lineWidth = 1.5
+  points.forEach((v, i) => {
+    const x = pad + i * stepX
+    const y = H - pad - ((v - minVal) / range) * (H - pad * 2)
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
+  })
+  ctx.stroke()
+
+  // Latest value label
+  const last = points[points.length - 1]
+  const lx = pad + (points.length - 1) * stepX
+  const ly = H - pad - ((last - minVal) / range) * (H - pad * 2)
+  ctx.fillStyle = color
+  ctx.beginPath(); ctx.arc(lx, ly, 3, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = '#ddd'
+  ctx.font = '11px system-ui'
+  ctx.textAlign = 'right'
+  ctx.fillText(last + (type === 'ram' ? ' MB' : '%'), W - pad, 14)
+}
+
 pollStats()
 setInterval(pollStats, 3000)
 
@@ -222,6 +376,36 @@ async function reloadCounts() {
     btn.disabled = false
   }
 }
+
+// ── Log viewer ────────────────────────────────────────────────────────────────
+let logDisplayCleared = false
+function clearLogDisplay() { document.getElementById('log-box').innerHTML = ''; logDisplayCleared = false }
+
+function appendLogs(logs) {
+  const box = document.getElementById('log-box')
+  const autoScroll = document.getElementById('log-autoscroll').checked
+  box.innerHTML = ''
+  for (const entry of logs) {
+    const line = document.createElement('div')
+    line.className = 'log-line log-' + entry.level
+    const iso = new Date(entry.ts).toISOString().replace('T', ' ').replace('Z', '')
+    line.textContent = iso + ' [' + entry.level.toUpperCase() + '] ' + entry.msg
+    box.appendChild(line)
+  }
+  if (autoScroll) box.scrollTop = box.scrollHeight
+}
+
+async function pollLogs() {
+  try {
+    const r = await fetch('/admin/api/logs')
+    if (!r.ok) return
+    const d = await r.json()
+    appendLogs(d.logs)
+  } catch {}
+}
+
+pollLogs()
+setInterval(pollLogs, 3000)
 </script>`
 
     return layout('Dashboard', content)
@@ -229,7 +413,7 @@ async function reloadCounts() {
 
 export function renderRoomList(roomList: Room[]): string {
     const rows = roomList.length === 0
-        ? `<tr><td colspan="6" class="empty">No active rooms</td></tr>`
+        ? `<tr><td colspan="8" class="empty">No active rooms</td></tr>`
         : roomList.map(r => `
 <tr>
   <td><a href="/admin/rooms/${e(r.id)}" class="mono">${e(r.id)}</a></td>
@@ -240,11 +424,17 @@ export function renderRoomList(roomList: Room[]): string {
   <td>${r.hasPassword
         ? '<span class="badge badge-yes">Yes</span>'
         : '<span class="badge badge-no">No</span>'}</td>
+  <td>${r.permanent
+        ? '<span class="badge badge-perm">Perm</span>'
+        : '<span style="color:#3a3a4a">—</span>'}</td>
   <td>
     <div class="actions">
-      <a href="/admin/rooms/${e(r.id)}" class="btn btn-ghost btn-sm">Detail</a>
+      <a href="/admin/rooms/${e(r.id)}" class="btn btn-ghost btn-sm btn-act">Detail</a>
+      <form method="POST" action="/admin/rooms/${e(r.id)}/permanent" style="display:inline">
+        <button type="submit" class="btn ${r.permanent ? 'btn-warn' : 'btn-ghost'} btn-sm btn-act" title="${r.permanent ? 'Remove permanent' : 'Make permanent'}">${r.permanent ? LOCK_SVG : LOCK_OPEN_SVG}</button>
+      </form>
       <form method="POST" action="/admin/rooms/${e(r.id)}/close" style="display:inline" onsubmit="return confirm('Close room ${e(r.name)}? All users will be disconnected.')">
-        <button type="submit" class="btn btn-danger btn-sm">Close</button>
+        <button type="submit" class="btn btn-danger btn-sm btn-act">Close</button>
       </form>
     </div>
   </td>
@@ -267,6 +457,7 @@ export function renderRoomList(roomList: Room[]): string {
         <th>Video</th>
         <th>Queue</th>
         <th>Password</th>
+        <th>Perm</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -275,6 +466,8 @@ export function renderRoomList(roomList: Room[]): string {
 </div>
 
 <script>
+const LOCK_SVG = '${LOCK_SVG.replace(/'/g, "\\'")}'
+const LOCK_OPEN_SVG = '${LOCK_OPEN_SVG.replace(/'/g, "\\'")}'
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 async function reloadRooms() {
   const btn = document.getElementById('rooms-reload-btn')
@@ -287,7 +480,7 @@ async function reloadRooms() {
     const sub = document.getElementById('rooms-sub')
     sub.textContent = d.rooms.length + ' active room' + (d.rooms.length !== 1 ? 's' : '')
     document.getElementById('rooms-tbody').innerHTML = d.rooms.length === 0
-      ? '<tr><td colspan="7" class="empty">No active rooms</td></tr>'
+      ? '<tr><td colspan="8" class="empty">No active rooms</td></tr>'
       : d.rooms.map(r => \`<tr>
   <td><a href="/admin/rooms/\${esc(r.id)}" class="mono">\${esc(r.id)}</a></td>
   <td>\${esc(r.name)}</td>
@@ -295,10 +488,14 @@ async function reloadRooms() {
   <td><span class="mono">\${esc(r.videoId || '—')}</span></td>
   <td>\${r.queueLength}</td>
   <td>\${r.hasPassword ? '<span class="badge badge-yes">Yes</span>' : '<span class="badge badge-no">No</span>'}</td>
+  <td>\${r.permanent ? '<span class="badge badge-perm">Perm</span>' : '<span style="color:#3a3a4a">—</span>'}</td>
   <td><div class="actions">
-    <a href="/admin/rooms/\${esc(r.id)}" class="btn btn-ghost btn-sm">Detail</a>
+    <a href="/admin/rooms/\${esc(r.id)}" class="btn btn-ghost btn-sm btn-act">Detail</a>
+    <form method="POST" action="/admin/rooms/\${esc(r.id)}/permanent" style="display:inline">
+      <button type="submit" class="btn \${r.permanent ? 'btn-warn' : 'btn-ghost'} btn-sm btn-act" title="\${r.permanent ? 'Remove permanent' : 'Make permanent'}">\${r.permanent ? LOCK_SVG : LOCK_OPEN_SVG}</button>
+    </form>
     <form method="POST" action="/admin/rooms/\${esc(r.id)}/close" style="display:inline" onsubmit="return confirm('Close room \${esc(r.name)}? All users will be disconnected.')">
-      <button type="submit" class="btn btn-danger btn-sm">Close</button>
+      <button type="submit" class="btn btn-danger btn-sm btn-act">Close</button>
     </form>
   </div></td>
 </tr>\`).join('')
@@ -345,6 +542,8 @@ export function renderRoomDetail(room: Room): string {
   <td><span class="mono">${e(item.videoId)}</span></td>
 </tr>`).join('')
 
+    const permBadge = room.permanent ? ' <span class="badge badge-perm" style="font-size:12px">Permanent</span>' : ''
+
     const content = `
 <a href="/admin/rooms" class="back">← Back to rooms</a>
 
@@ -352,7 +551,7 @@ export function renderRoomDetail(room: Room): string {
   Room has been closed. <a href="/admin/rooms" style="color:#f47070;text-decoration:underline">Back to room list</a>
 </div>
 
-<h1>${e(room.name)}</h1>
+<h1>${e(room.name)}${permBadge}</h1>
 <p class="page-sub">Room ID: <span class="mono">${e(room.id)}</span></p>
 
 <div class="card">
@@ -367,6 +566,9 @@ export function renderRoomDetail(room: Room): string {
       <span id="player-pause-wrap">${ps.isPlaying
         ? `<form method="POST" action="/admin/rooms/${e(room.id)}/pause" style="display:inline"><button type="submit" class="btn btn-warn">Force pause</button></form>`
         : '<span style="color:#444;font-size:13px">Playback already paused</span>'}</span>
+      <form method="POST" action="/admin/rooms/${e(room.id)}/permanent" style="display:inline">
+        <button type="submit" class="btn ${room.permanent ? 'btn-warn' : 'btn-ghost'}">${room.permanent ? `${LOCK_SVG} Unpin room` : `${LOCK_OPEN_SVG} Make permanent`}</button>
+      </form>
       <form method="POST" action="/admin/rooms/${e(room.id)}/close" style="display:inline" onsubmit="return confirm('Close room ${e(room.name)}? All users will be disconnected.')">
         <button type="submit" class="btn btn-danger">Close room</button>
       </form>
@@ -480,4 +682,83 @@ export function renderConfig(cfg: Record<string, unknown>): string {
 </div>`
 
     return layout('Config', content)
+}
+
+export function renderLogs(logs: LogEntry[]): string {
+    const content = `
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px">
+  <h1>Logs</h1>
+  <a href="/admin/logs/download" class="btn btn-ghost">Download today's log</a>
+</div>
+<p class="page-sub">Server log stream — last ${logs.length} entries</p>
+
+<div class="card">
+  <div class="log-toolbar">
+    <button class="filter-btn active" data-level="all" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" data-level="info" onclick="setFilter('info', this)">Info</button>
+    <button class="filter-btn" data-level="warn" onclick="setFilter('warn', this)">Warn</button>
+    <button class="filter-btn" data-level="error" onclick="setFilter('error', this)">Error</button>
+    <div style="flex:1"></div>
+    <label style="font-size:11px;color:#555;cursor:pointer;display:flex;align-items:center;gap:4px">
+      <input type="checkbox" id="auto-refresh" checked style="cursor:pointer"> Auto-refresh
+    </label>
+    <label style="font-size:11px;color:#555;cursor:pointer;display:flex;align-items:center;gap:4px">
+      <input type="checkbox" id="log-autoscroll" checked style="cursor:pointer"> Auto-scroll
+    </label>
+  </div>
+  <div class="log-box log-box-full" id="log-box"></div>
+</div>
+
+<script>
+const ALL_LOGS = ${JSON.stringify(logs)}
+let currentFilter = 'all'
+let refreshTimer = null
+
+function setFilter(level, btn) {
+  currentFilter = level
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  renderLogs(ALL_LOGS)
+}
+
+function renderLogs(logs) {
+  const box = document.getElementById('log-box')
+  const autoScroll = document.getElementById('log-autoscroll').checked
+  const filtered = currentFilter === 'all' ? logs : logs.filter(l => l.level === currentFilter)
+  box.innerHTML = ''
+  for (const entry of filtered) {
+    const line = document.createElement('div')
+    line.className = 'log-line log-' + entry.level
+    const iso = new Date(entry.ts).toISOString().replace('T', ' ').replace('Z', '')
+    line.textContent = iso + ' [' + entry.level.toUpperCase() + '] ' + entry.msg
+    box.appendChild(line)
+  }
+  if (autoScroll) box.scrollTop = box.scrollHeight
+}
+
+async function refreshLogs() {
+  try {
+    const r = await fetch('/admin/api/logs?n=500')
+    if (!r.ok) return
+    const d = await r.json()
+    renderLogs(d.logs)
+  } catch {}
+}
+
+function startRefresh() {
+  refreshTimer = setInterval(refreshLogs, 3000)
+}
+function stopRefresh() {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null }
+}
+
+document.getElementById('auto-refresh').addEventListener('change', function() {
+  if (this.checked) startRefresh(); else stopRefresh()
+})
+
+renderLogs(ALL_LOGS)
+startRefresh()
+</script>`
+
+    return layout('Logs', content)
 }

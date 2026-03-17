@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io'
 import { EVENTS } from '../../../shared/constants'
 import type { Room, User, PlayerState, QueueItem, ChatMessage } from '../../../shared/types'
 import { config } from '../config'
+import { logger } from '../logger'
 
 async function fetchVideoTitle(videoId: string): Promise<string> {
     try {
@@ -42,16 +43,22 @@ export function removeFromRoom(socketId: string): void {
     socketRooms.delete(socketId)
 
     if (room.users.length === 0) {
+        if (room.permanent) {
+            room.hostId = ''
+            room.playerState = { ...room.playerState, isPlaying: false, lastUpdated: Date.now() }
+            logger.info(`Room ${roomId} is empty but permanent — keeping alive`)
+            return
+        }
         rooms.delete(roomId)
         roomPasswords.delete(roomId)
-        console.log(`Room ${roomId} deleted (last user: ${socketId})`)
+        logger.info(`Room ${roomId} deleted (last user: ${socketId})`)
         return
     }
 
     if (room.hostId === socketId) {
         room.hostId = room.users[0].id
         delete room.users[0].canControl
-        console.log(`Host transferred in room ${roomId} to ${room.hostId}`)
+        logger.info(`Host transferred in room ${roomId} to ${room.hostId}`)
     }
 
     for (const u of room.users) {
@@ -66,7 +73,7 @@ export function setupSocketHandlers(io: Server): void {
         const forwarded = socket.handshake.headers['x-forwarded-for']
         const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]?.trim())
             ?? socket.handshake.address
-        console.log(`User connected: ${socket.id} (${ip})`)
+        logger.info(`User connected: ${socket.id} (${ip})`)
 
         socket.on(EVENTS.CREATE_ROOM, (payload: { name: string; userName: string }) => {
             const roomId = generateId()
@@ -88,7 +95,7 @@ export function setupSocketHandlers(io: Server): void {
             socketRooms.set(socket.id, roomId)
             socket.join(roomId)
             socket.emit(EVENTS.ROOM_UPDATE, room)
-            console.log(`Room created: ${roomId} by ${payload.userName} (${ip})`)
+            logger.info(`Room created: ${roomId} by ${payload.userName} (${ip})`)
         })
 
         socket.on(EVENTS.JOIN_ROOM, (payload: { roomId: string; userName: string; password?: string }) => {
@@ -108,6 +115,10 @@ export function setupSocketHandlers(io: Server): void {
                     return
                 }
             }
+            // If permanent room is empty, first joiner becomes the host
+            if (room.users.length === 0) {
+                room.hostId = socket.id
+            }
             const guestNumber = room.users.filter(u => u.id !== room.hostId).length + 1
             const user: User = { id: socket.id, name: payload.userName || `Guest${guestNumber}`, roomId: payload.roomId }
             room.users.push(user)
@@ -123,7 +134,7 @@ export function setupSocketHandlers(io: Server): void {
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
-            console.log(`${payload.userName} (${ip}) joined room ${payload.roomId}`)
+            logger.info(`${payload.userName} (${ip}) joined room ${payload.roomId}`)
         })
 
         socket.on(EVENTS.LEAVE_ROOM, () => {
@@ -327,7 +338,7 @@ export function setupSocketHandlers(io: Server): void {
         })
 
         socket.on('disconnect', () => {
-            console.log(`User disconnected: ${socket.id} (${ip})`)
+            logger.info(`User disconnected: ${socket.id} (${ip})`)
             removeFromRoom(socket.id)
         })
     })

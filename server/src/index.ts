@@ -6,6 +6,7 @@ import path from 'path';
 import crypto from 'crypto';
 import session from 'express-session';
 import { config } from './config';
+import { logger } from './logger';
 import { setupSocketHandlers } from './socket/handlers';
 import { createAdminRouter } from './routes/admin';
 import { createAdminGate } from './admin/auth';
@@ -139,7 +140,7 @@ app.get('/api/playlist/:playlistId', async (req, res) => {
 
 // Admin panel
 if (config.admin.networkAccessible && !config.admin.passwordHash) {
-    console.warn('[admin] networkAccessible is true but passwordHash is not set — admin panel disabled.');
+    logger.warn('[admin] networkAccessible is true but passwordHash is not set — admin panel disabled.');
     config.admin.enabled = false;
 }
 if (config.admin.enabled) {
@@ -152,7 +153,7 @@ if (config.admin.enabled) {
     const adminGate = createAdminGate(config.admin);
     const adminRouter = createAdminRouter(config, startTime);
     app.use('/admin', adminGate, adminRouter);
-    console.log(`[admin] Panel available at http://localhost:${config.server.port}/admin`);
+    logger.info(`[admin] Panel available at http://localhost:${config.server.port}/admin`);
 }
 
 // Setup WebSocket handlers
@@ -167,5 +168,5 @@ if (isProd) {
 }
 
 httpServer.listen(config.server.port, () => {
-    console.log(`🚀 Server running on http://localhost:${config.server.port}`);
+    logger.info(`Server running on http://localhost:${config.server.port}`);
 });
