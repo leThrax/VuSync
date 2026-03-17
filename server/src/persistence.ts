@@ -7,7 +7,7 @@ const DATA_DIR = path.join(__dirname, '..', 'data')
 const ROOMS_FILE = path.join(DATA_DIR, 'rooms.json')
 
 interface PersistedEntry {
-    room: Room & { users: []; hostId: '' }
+    room: Room
     password?: string
 }
 

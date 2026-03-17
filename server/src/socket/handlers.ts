@@ -23,9 +23,9 @@ export const socketRooms = new Map<string, string>() // socketId → roomId
 export const roomPasswords = new Map<string, string>() // roomId → plain-text password
 
 // Seed maps with persisted permanent rooms on startup
-const _persisted = loadPermanentRooms()
-for (const room of _persisted.rooms) rooms.set(room.id, room)
-for (const [id, pw] of _persisted.passwords) roomPasswords.set(id, pw)
+const persisted = loadPermanentRooms()
+for (const room of persisted.rooms) rooms.set(room.id, room)
+for (const [id, pw] of persisted.passwords) roomPasswords.set(id, pw)
 
 export function saveRooms(): void {
     savePermanentRooms(rooms, roomPasswords)
