@@ -79,6 +79,7 @@ export function useSync(
 
             if (isFirstUpdate) {
                 onJoinedRoomRef.current?.()
+                onVideoChangeRef.current(updated.playerState.videoId)
             }
 
             if (joiningNow) {
@@ -90,7 +91,6 @@ export function useSync(
                     ? { ...updated, playerState: { ...updated.playerState, currentTime: updated.playerState.currentTime + elapsed } }
                     : updated
                 setRoom(synced)
-                onVideoChangeRef.current(updated.playerState.videoId)
 
                 if (updated.playerState.isPlaying) {
                     const joinTime = Date.now()

@@ -431,6 +431,7 @@ export function renderRoomList(roomList: Room[]): string {
     <div class="actions">
       <a href="/admin/rooms/${e(r.id)}" class="btn btn-ghost btn-sm btn-act">Detail</a>
       <form method="POST" action="/admin/rooms/${e(r.id)}/permanent" style="display:inline">
+        <input type="hidden" name="returnTo" value="list">
         <button type="submit" class="btn ${r.permanent ? 'btn-warn' : 'btn-ghost'} btn-sm btn-act" title="${r.permanent ? 'Remove permanent' : 'Make permanent'}">${r.permanent ? LOCK_SVG : LOCK_OPEN_SVG}</button>
       </form>
       <form method="POST" action="/admin/rooms/${e(r.id)}/close" style="display:inline" onsubmit="return confirm('Close room ${e(r.name)}? All users will be disconnected.')">
@@ -492,6 +493,7 @@ async function reloadRooms() {
   <td><div class="actions">
     <a href="/admin/rooms/\${esc(r.id)}" class="btn btn-ghost btn-sm btn-act">Detail</a>
     <form method="POST" action="/admin/rooms/\${esc(r.id)}/permanent" style="display:inline">
+      <input type="hidden" name="returnTo" value="list">
       <button type="submit" class="btn \${r.permanent ? 'btn-warn' : 'btn-ghost'} btn-sm btn-act" title="\${r.permanent ? 'Remove permanent' : 'Make permanent'}">\${r.permanent ? LOCK_SVG : LOCK_OPEN_SVG}</button>
     </form>
     <form method="POST" action="/admin/rooms/\${esc(r.id)}/close" style="display:inline" onsubmit="return confirm('Close room \${esc(r.name)}? All users will be disconnected.')">

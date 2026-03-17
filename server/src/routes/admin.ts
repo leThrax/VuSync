@@ -190,7 +190,11 @@ export function createAdminRouter(config: VuSyncConfig, startTime: number) {
         room.permanent = !room.permanent
         logger.info(`Room ${room.id} permanent flag set to ${room.permanent} by admin`)
         saveRooms()
-        res.redirect(`/admin/rooms/${req.params.id}`)
+        if (req.body.returnTo === 'list') {
+            res.redirect('/admin/rooms')
+        } else {
+            res.redirect(`/admin/rooms/${req.params.id}`)
+        }
     })
 
     // ── Transfer host ──────────────────────────────────────────────────────
