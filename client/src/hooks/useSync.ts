@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject, MutableRefObject } from 'react'
 import type { YouTubePlayer } from 'react-youtube'
-import { socket } from '../socket'
+import { socket, CLIENT_ID } from '../socket'
 import { EVENTS } from '../../../shared/constants'
 import type { Room, PlayerState, QueueItem } from '../../../shared/types'
 
@@ -231,11 +231,11 @@ export function useSync(
     const hasControl = isHost || (room !== null && room.users.find(u => u.id === socket.id)?.canControl === true)
 
     function createRoom(roomName: string, userName: string) {
-        socket.emit(EVENTS.CREATE_ROOM, { name: roomName, userName })
+        socket.emit(EVENTS.CREATE_ROOM, { name: roomName, userName, clientId: CLIENT_ID })
     }
 
     function joinRoom(roomId: string, userName: string, password?: string) {
-        socket.emit(EVENTS.JOIN_ROOM, { roomId, userName, ...(password !== undefined ? { password } : {}) })
+        socket.emit(EVENTS.JOIN_ROOM, { roomId, userName, clientId: CLIENT_ID, ...(password !== undefined ? { password } : {}) })
     }
 
     function emitSetPassword(password: string) {

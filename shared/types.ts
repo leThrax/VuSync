@@ -10,6 +10,7 @@ export interface User {
     name: string;
     roomId?: string;
     canControl?: boolean;
+    clientId?: string;
 }
 
 export interface Room {
@@ -22,6 +23,7 @@ export interface Room {
     hasPassword?: boolean;
     loop?: boolean;
     permanent?: boolean;
+    controlledClientIds?: string[]; // persistent per-browser client IDs with granted control, survives reload/rejoin
 }
 
 export interface PlayerState {

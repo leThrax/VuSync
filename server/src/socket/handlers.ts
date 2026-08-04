@@ -86,9 +86,9 @@ export function setupSocketHandlers(io: Server): void {
             ?? socket.handshake.address
         logger.info(`User connected: ${socket.id} (${ip})`)
 
-        socket.on(EVENTS.CREATE_ROOM, (payload: { name: string; userName: string }) => {
+        socket.on(EVENTS.CREATE_ROOM, (payload: { name: string; userName: string; clientId?: string }) => {
             const roomId = generateId()
-            const user: User = { id: socket.id, name: payload.userName || 'Host', roomId }
+            const user: User = { id: socket.id, name: payload.userName || 'Host', roomId, clientId: payload.clientId }
             const room: Room = {
                 id: roomId,
                 name: payload.name,
@@ -109,7 +109,7 @@ export function setupSocketHandlers(io: Server): void {
             logger.info(`Room created: ${roomId} by ${payload.userName} (${ip})`)
         })
 
-        socket.on(EVENTS.JOIN_ROOM, (payload: { roomId: string; userName: string; password?: string }) => {
+        socket.on(EVENTS.JOIN_ROOM, (payload: { roomId: string; userName: string; password?: string; clientId?: string }) => {
             const room = rooms.get(payload.roomId)
             if (!room) {
                 socket.emit('error', { message: 'Room not found' })
@@ -131,7 +131,10 @@ export function setupSocketHandlers(io: Server): void {
                 room.hostId = socket.id
             }
             const guestNumber = room.users.filter(u => u.id !== room.hostId).length + 1
-            const user: User = { id: socket.id, name: payload.userName || `Guest${guestNumber}`, roomId: payload.roomId }
+            const user: User = { id: socket.id, name: payload.userName || `Guest${guestNumber}`, roomId: payload.roomId, clientId: payload.clientId }
+            if (payload.clientId && room.controlledClientIds?.includes(payload.clientId)) {
+                user.canControl = true
+            }
             room.users.push(user)
             socketRooms.set(socket.id, payload.roomId)
             socket.join(payload.roomId)
@@ -322,9 +325,18 @@ export function setupSocketHandlers(io: Server): void {
             const target = room.users.find(u => u.id === payload.targetId)
             if (!target || target.id === room.hostId) return
             target.canControl = !target.canControl
+            if (target.clientId) {
+                room.controlledClientIds ??= []
+                if (target.canControl) {
+                    if (!room.controlledClientIds.includes(target.clientId)) room.controlledClientIds.push(target.clientId)
+                } else {
+                    room.controlledClientIds = room.controlledClientIds.filter(id => id !== target.clientId)
+                }
+            }
             for (const u of room.users) {
                 io.to(u.id).emit(EVENTS.ROOM_UPDATE, room)
             }
+            if (room.permanent) saveRooms()
         })
 
         // Host-only: periodic full state push (e.g. triggered when a guest joins)

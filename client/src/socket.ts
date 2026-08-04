@@ -7,3 +7,10 @@ export const SERVER_URL = import.meta.env.DEV
     : window.location.origin
 
 export const socket = io(SERVER_URL, { autoConnect: false })
+
+const CLIENT_ID_KEY = 'vusync-client-id'
+export const CLIENT_ID = localStorage.getItem(CLIENT_ID_KEY) ?? (() => {
+    const id = crypto.randomUUID()
+    localStorage.setItem(CLIENT_ID_KEY, id)
+    return id
+})()
