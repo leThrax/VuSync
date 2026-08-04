@@ -17,6 +17,11 @@ interface Toast { id: number; message: string; side: 'left' | 'right'; type: 'da
 
 const MIN_PLAYER_WIDTH = 1100
 const MAX_PLAYER_WIDTH = 1760
+const RESERVED_VERTICAL_SPACE = 180 // stage padding + bottom bar, with margin
+
+function maxWidthForViewportHeight(): number {
+    return Math.round((window.innerHeight - RESERVED_VERTICAL_SPACE) * 16 / 9)
+}
 
 export default function Player() {
     const [videoId, setVideoId] = useState('')
@@ -24,6 +29,7 @@ export default function Player() {
         const saved = localStorage.getItem('vusync-player-width')
         return saved ? Math.max(MIN_PLAYER_WIDTH, Math.min(MAX_PLAYER_WIDTH, Number(saved))) : MAX_PLAYER_WIDTH
     })
+    const [viewportMaxWidth, setViewportMaxWidth] = useState(maxWidthForViewportHeight)
     const [urlInput, setUrlInput] = useState('')
     const [joinInput, setJoinInput] = useState('')
     const [nameInput, setNameInput] = useState(() => localStorage.getItem('vusync-username') ?? '')
@@ -48,6 +54,17 @@ export default function Player() {
     useEffect(() => {
         localStorage.setItem('vusync-player-width', String(playerWidth))
     }, [playerWidth])
+
+    useEffect(() => {
+        function onResize() { setViewportMaxWidth(maxWidthForViewportHeight()) }
+        window.addEventListener('resize', onResize)
+        return () => window.removeEventListener('resize', onResize)
+    }, [])
+
+    const displayPlayerWidth = Math.min(playerWidth, viewportMaxWidth)
+    // Always-current ref so the mousemove listener (subscribed once) sees live resizes
+    const viewportMaxWidthRef = useRef(viewportMaxWidth)
+    viewportMaxWidthRef.current = viewportMaxWidth
 
     function addToast(message: string, side: 'left' | 'right', type: 'danger' | 'success' = 'success') {
         const id = ++toastIdRef.current
@@ -327,7 +344,7 @@ export default function Player() {
         function onMouseMove(e: MouseEvent) {
             if (!isResizingRef.current) return
             const dx = e.clientX - resizeStartXRef.current
-            setPlayerWidth(_ => Math.max(MIN_PLAYER_WIDTH, Math.min(MAX_PLAYER_WIDTH, resizeStartWidthRef.current + dx * 2)))
+            setPlayerWidth(_ => Math.max(MIN_PLAYER_WIDTH, Math.min(MAX_PLAYER_WIDTH, viewportMaxWidthRef.current, resizeStartWidthRef.current + dx * 2)))
         }
         function onMouseUp() {
             if (!isResizingRef.current) return
@@ -347,7 +364,7 @@ export default function Player() {
         e.preventDefault()
         isResizingRef.current = true
         resizeStartXRef.current = e.clientX
-        resizeStartWidthRef.current = playerWidth
+        resizeStartWidthRef.current = displayPlayerWidth
         document.body.style.cursor = 'ew-resize'
         document.body.style.userSelect = 'none'
     }
@@ -408,7 +425,7 @@ export default function Player() {
             <div className="player-stage">
                 <div
                     className="player-resize-wrap"
-                    style={{ width: `min(${playerWidth}px, 98vw)` }}
+                    style={{ width: `min(${displayPlayerWidth}px, 98vw)` }}
                 >
                     <div className="player-wrapper">
                         {!videoId && !inRoom ? (
