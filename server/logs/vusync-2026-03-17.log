@@ -1,0 +1,255 @@
+[2026-03-17T09:21:41.967Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T09:21:41.969Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T09:26:42.935Z] [INFO] Stats: RAM=133MB CPU=0%
+[2026-03-17T09:31:44.200Z] [INFO] Stats: RAM=135MB CPU=0%
+[2026-03-17T09:32:21.299Z] [INFO] User connected: MqjzgcCoMjmZo0mUAAAC (::1)
+[2026-03-17T09:32:22.768Z] [INFO] Room created: z908x72 by Thrax (::1)
+[2026-03-17T09:32:39.027Z] [INFO] Room z908x72 permanent flag set to true by admin
+[2026-03-17T09:32:44.714Z] [INFO] Room z908x72 permanent flag set to false by admin
+[2026-03-17T09:32:47.367Z] [INFO] Room z908x72 permanent flag set to true by admin
+[2026-03-17T09:32:57.523Z] [INFO] Room z908x72 is empty but permanent — keeping alive
+[2026-03-17T09:33:06.262Z] [INFO] Thrax (::1) joined room z908x72
+[2026-03-17T09:33:16.114Z] [INFO] User connected: __T3fQLVnCjm7lxTAAAF (::1)
+[2026-03-17T09:33:16.220Z] [INFO]  (::1) joined room z908x72
+[2026-03-17T09:33:21.452Z] [INFO] Host transferred in room z908x72 to __T3fQLVnCjm7lxTAAAF
+[2026-03-17T09:33:26.492Z] [INFO] Thrax (::1) joined room z908x72
+[2026-03-17T09:36:45.150Z] [INFO] Stats: RAM=136MB CPU=0%
+[2026-03-17T09:41:46.443Z] [INFO] Stats: RAM=136MB CPU=0%
+[2026-03-17T09:46:47.377Z] [INFO] Stats: RAM=136MB CPU=0%
+[2026-03-17T09:51:47.965Z] [INFO] Stats: RAM=136MB CPU=0%
+[2026-03-17T09:56:48.257Z] [INFO] Stats: RAM=83MB CPU=0%
+[2026-03-17T10:01:48.651Z] [INFO] Stats: RAM=92MB CPU=0%
+[2026-03-17T10:06:49.057Z] [INFO] Stats: RAM=82MB CPU=0%
+[2026-03-17T10:11:49.418Z] [INFO] Stats: RAM=82MB CPU=0%
+[2026-03-17T10:16:45.975Z] [INFO] Room z908x72 permanent flag set to false by admin
+[2026-03-17T10:16:49.957Z] [INFO] Stats: RAM=86MB CPU=0%
+[2026-03-17T10:16:51.288Z] [INFO] Room z908x72 deleted (last user: __T3fQLVnCjm7lxTAAAF)
+[2026-03-17T10:17:05.685Z] [INFO] Room created: ygzpijf by Thrax (::1)
+[2026-03-17T10:21:51.072Z] [INFO] Stats: RAM=87MB CPU=0%
+[2026-03-17T10:25:48.535Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T10:25:48.536Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T10:25:49.431Z] [INFO] User connected: DJVW2N_AesEZPGxKAAAC (::1)
+[2026-03-17T10:25:49.432Z] [INFO] User connected: 9e65J2tzJ0VY9dj5AAAD (::1)
+[2026-03-17T10:26:06.909Z] [INFO] User disconnected: DJVW2N_AesEZPGxKAAAC (::1)
+[2026-03-17T10:26:07.232Z] [INFO] User connected: EBtaHvsvgnMwGN-HAAAG (::1)
+[2026-03-17T10:26:08.132Z] [INFO] Room created: 6j43j78 by Thrax (::1)
+[2026-03-17T10:26:57.862Z] [INFO] User disconnected: 9e65J2tzJ0VY9dj5AAAD (::1)
+[2026-03-17T10:26:57.930Z] [INFO] User connected: Rs6LZBqVKEgUOwIlAAAJ (::1)
+[2026-03-17T10:26:59.700Z] [INFO] Room 6j43j78 permanent flag set to true by admin
+[2026-03-17T10:27:00.786Z] [INFO] Room 6j43j78 permanent flag set to false by admin
+[2026-03-17T10:27:01.457Z] [INFO] Room 6j43j78 permanent flag set to true by admin
+[2026-03-17T10:27:02.181Z] [INFO] Room 6j43j78 permanent flag set to false by admin
+[2026-03-17T10:30:49.269Z] [INFO] Stats: RAM=120MB CPU=0%
+[2026-03-17T10:35:50.405Z] [INFO] Stats: RAM=120MB CPU=0%
+[2026-03-17T10:40:14.335Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T10:40:14.336Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T10:40:15.400Z] [INFO] User connected: uYPU1Q24CVH3Ud-vAAAB (::1)
+[2026-03-17T10:40:15.416Z] [INFO] User disconnected: uYPU1Q24CVH3Ud-vAAAB (::1)
+[2026-03-17T10:40:15.448Z] [INFO] User connected: nzdZollBR-1AD8MkAAAD (::1)
+[2026-03-17T10:40:15.722Z] [INFO] User connected: C8hZSKWqAKCTEemlAAAG (::1)
+[2026-03-17T10:40:16.624Z] [INFO] Room created: nxxv3lv by Thrax (::1)
+[2026-03-17T10:40:30.834Z] [INFO] Room nxxv3lv permanent flag set to true by admin
+[2026-03-17T10:40:31.918Z] [INFO] Room nxxv3lv permanent flag set to false by admin
+[2026-03-17T10:40:32.389Z] [INFO] Room nxxv3lv permanent flag set to true by admin
+[2026-03-17T10:40:32.735Z] [INFO] Room nxxv3lv permanent flag set to false by admin
+[2026-03-17T11:33:39.291Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T11:33:39.293Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T11:34:01.646Z] [INFO] User connected: 5YamOcIOIraC2uCsAAAC (::1)
+[2026-03-17T11:35:09.473Z] [INFO] Room created: raojdx3 by Thrax (::1)
+[2026-03-17T11:35:11.184Z] [INFO] User connected: 7Ygg7EHzOO1RLX99AAAF (::1)
+[2026-03-17T11:35:14.415Z] [INFO] Thrax2 (::1) joined room raojdx3
+[2026-03-17T11:37:43.586Z] [INFO] Host transferred in room raojdx3 to 7Ygg7EHzOO1RLX99AAAF
+[2026-03-17T11:37:47.417Z] [INFO] Thrax (::1) joined room raojdx3
+[2026-03-17T11:38:39.879Z] [INFO] Stats: RAM=136MB CPU=0%
+[2026-03-17T11:40:19.550Z] [INFO] Room raojdx3 permanent flag set to true by admin
+[2026-03-17T11:40:20.653Z] [INFO] Room raojdx3 permanent flag set to false by admin
+[2026-03-17T11:40:22.672Z] [INFO] Room raojdx3 permanent flag set to true by admin
+[2026-03-17T11:40:24.193Z] [INFO] Room raojdx3 permanent flag set to false by admin
+[2026-03-17T11:43:40.109Z] [INFO] Stats: RAM=137MB CPU=0%
+[2026-03-17T11:48:40.700Z] [INFO] Stats: RAM=137MB CPU=0%
+[2026-03-17T11:49:00.969Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T11:49:00.970Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T11:49:01.032Z] [INFO] User connected: 4YOMlx2g_Vyx68J7AAAB (::1)
+[2026-03-17T11:49:01.951Z] [INFO] User connected: yCxE9JLOc25s3bZHAAAD (::1)
+[2026-03-17T11:49:17.673Z] [INFO] User disconnected: yCxE9JLOc25s3bZHAAAD (::1)
+[2026-03-17T11:49:17.986Z] [INFO] User connected: J7x5uwvC0jhZcAglAAAG (::1)
+[2026-03-17T11:49:19.092Z] [INFO] User disconnected: 4YOMlx2g_Vyx68J7AAAB (::1)
+[2026-03-17T11:49:19.234Z] [INFO] User connected: Ja0kX5qAwX7Kpg5QAAAJ (::1)
+[2026-03-17T11:49:20.416Z] [INFO] Room created: co01ww2 by Thrax2 (::1)
+[2026-03-17T11:49:31.215Z] [INFO] Thrax2 (::1) joined room co01ww2
+[2026-03-17T11:49:43.178Z] [INFO] Host transferred in room co01ww2 to Ja0kX5qAwX7Kpg5QAAAJ
+[2026-03-17T11:49:45.563Z] [INFO] Host transferred in room co01ww2 to J7x5uwvC0jhZcAglAAAG
+[2026-03-17T11:54:01.465Z] [INFO] Stats: RAM=121MB CPU=0%
+[2026-03-17T11:59:02.586Z] [INFO] Stats: RAM=122MB CPU=0%
+[2026-03-17T12:00:27.843Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T12:00:27.845Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T12:00:28.551Z] [INFO] User connected: lsmZ-iQLoLt8es7WAAAC (::1)
+[2026-03-17T12:00:28.951Z] [INFO] User connected: joFlehSNow1jdz8DAAAE (::1)
+[2026-03-17T12:00:29.439Z] [INFO] Room created: 5golnlu by Thrax2 (::1)
+[2026-03-17T12:00:29.929Z] [INFO] User disconnected: joFlehSNow1jdz8DAAAE (::1)
+[2026-03-17T12:00:30.069Z] [INFO] User connected: MKXAKvKOpB5ZO5QOAAAH (::1)
+[2026-03-17T12:00:42.024Z] [INFO] Room 5golnlu permanent flag set to true by admin
+[2026-03-17T12:00:43.580Z] [INFO] Room 5golnlu permanent flag set to false by admin
+[2026-03-17T12:00:44.310Z] [INFO] Room 5golnlu permanent flag set to true by admin
+[2026-03-17T12:00:44.930Z] [INFO] Room 5golnlu permanent flag set to false by admin
+[2026-03-17T12:00:45.486Z] [INFO] Room 5golnlu permanent flag set to true by admin
+[2026-03-17T12:00:49.648Z] [INFO] Room 5golnlu permanent flag set to false by admin
+[2026-03-17T12:00:50.008Z] [INFO] Room 5golnlu permanent flag set to true by admin
+[2026-03-17T12:02:17.820Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T12:02:17.821Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T12:02:18.956Z] [INFO] User connected: AP6oHQZmw_PoY0vLAAAC (::1)
+[2026-03-17T12:02:18.957Z] [INFO] User connected: q2-D3BBmDen8tT2jAAAD (::1)
+[2026-03-17T12:07:18.736Z] [INFO] Stats: RAM=105MB CPU=0%
+[2026-03-17T12:12:19.782Z] [INFO] Stats: RAM=105MB CPU=0%
+[2026-03-17T12:17:20.916Z] [INFO] Stats: RAM=105MB CPU=0%
+[2026-03-17T12:22:22.111Z] [INFO] Stats: RAM=105MB CPU=0%
+[2026-03-17T12:27:23.448Z] [INFO] Stats: RAM=105MB CPU=0%
+[2026-03-17T12:32:24.695Z] [INFO] Stats: RAM=105MB CPU=0%
+[2026-03-17T12:37:25.763Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T12:42:26.921Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T12:47:28.202Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T12:52:29.487Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T12:57:30.688Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:02:31.782Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:07:32.966Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:12:34.260Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:17:35.537Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:22:36.690Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:27:37.839Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:32:39.089Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:37:40.411Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:42:41.666Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:47:42.755Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:52:43.931Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T13:57:45.223Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T14:02:46.482Z] [INFO] Stats: RAM=106MB CPU=0%
+[2026-03-17T14:07:47.656Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:12:48.780Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:17:50.004Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:22:51.331Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:27:52.554Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:32:53.698Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:37:54.861Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:42:56.131Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:47:57.409Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:52:58.650Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T14:57:59.752Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:03:00.953Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:08:02.266Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:13:03.515Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:18:04.716Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:23:05.858Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:28:07.100Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:33:08.396Z] [INFO] Stats: RAM=42MB CPU=0%
+[2026-03-17T15:38:09.635Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T15:43:10.792Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T15:48:11.943Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T15:53:13.224Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T15:58:14.477Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:03:15.691Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:08:16.808Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:13:18.018Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:18:19.346Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:23:20.546Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:28:21.732Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:33:22.867Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:38:24.118Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:43:25.374Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:48:26.627Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:53:27.786Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T16:58:28.976Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T17:03:30.263Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T17:08:31.469Z] [INFO] Stats: RAM=43MB CPU=0%
+[2026-03-17T17:13:32.729Z] [INFO] Stats: RAM=38MB CPU=0%
+[2026-03-17T17:18:33.858Z] [INFO] Stats: RAM=38MB CPU=0%
+[2026-03-17T17:23:35.086Z] [INFO] Stats: RAM=36MB CPU=0%
+[2026-03-17T17:28:36.350Z] [INFO] Stats: RAM=37MB CPU=0%
+[2026-03-17T17:29:57.640Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T17:29:57.641Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T17:29:57.957Z] [INFO] User connected: pJWQNYgXJ_N243Z0AAAC (::1)
+[2026-03-17T17:29:57.957Z] [INFO] User connected: MHCxDbqS17drcNG-AAAD (::1)
+[2026-03-17T17:30:03.991Z] [INFO] User disconnected: pJWQNYgXJ_N243Z0AAAC (::1)
+[2026-03-17T17:30:04.354Z] [INFO] User connected: 98D5MPdx13eYC5aIAAAG (::1)
+[2026-03-17T17:30:24.177Z] [INFO] Room created: bopqbh3 by Thrax2 (::1)
+[2026-03-17T17:30:27.398Z] [INFO] Room bopqbh3 permanent flag set to true by admin
+[2026-03-17T17:30:34.850Z] [INFO] Room bopqbh3 is empty but permanent — keeping alive
+[2026-03-17T17:30:55.153Z] [INFO] Thrax2 (::1) joined room bopqbh3
+[2026-03-17T17:30:56.424Z] [INFO] Room bopqbh3 is empty but permanent — keeping alive
+[2026-03-17T17:31:01.495Z] [INFO] Loaded 1 permanent room(s) from disk
+[2026-03-17T17:31:01.502Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T17:31:01.503Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T17:31:01.955Z] [INFO] User connected: znOLDKJ8SUhNHupgAAAC (::1)
+[2026-03-17T17:31:01.957Z] [INFO] User connected: 77wm5KtPVHWYhxgkAAAD (::1)
+[2026-03-17T17:31:13.396Z] [INFO] User disconnected: 77wm5KtPVHWYhxgkAAAD (::1)
+[2026-03-17T17:31:13.667Z] [INFO] User connected: sQeToCyggd1rOH96AAAG (::1)
+[2026-03-17T17:31:14.673Z] [INFO] Thrax2 (::1) joined room bopqbh3
+[2026-03-17T17:31:34.224Z] [INFO] Loaded 1 permanent room(s) from disk
+[2026-03-17T17:31:34.230Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T17:31:34.231Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T17:31:34.958Z] [INFO] User connected: 3kje2r5rLOsv94qxAAAC (::1)
+[2026-03-17T17:31:34.960Z] [INFO] User connected: EURi3z-ePvemgwtsAAAD (::1)
+[2026-03-17T17:31:42.939Z] [INFO] User disconnected: EURi3z-ePvemgwtsAAAD (::1)
+[2026-03-17T17:31:43.223Z] [INFO] User connected: WkM4tpb29qsPJn3PAAAG (::1)
+[2026-03-17T17:31:43.334Z] [INFO]  (::1) joined room bopqbh3
+[2026-03-17T17:31:52.848Z] [INFO] User disconnected: 3kje2r5rLOsv94qxAAAC (::1)
+[2026-03-17T17:31:52.995Z] [INFO] User connected: g_9XQd-djyvy5MhXAAAJ (::1)
+[2026-03-17T17:31:55.162Z] [INFO] Room bopqbh3 is empty but permanent — keeping alive
+[2026-03-17T17:32:04.126Z] [INFO] Thrax2 (::1) joined room bopqbh3
+[2026-03-17T17:36:34.835Z] [INFO] Stats: RAM=103MB CPU=0%
+[2026-03-17T17:41:35.829Z] [INFO] Stats: RAM=103MB CPU=0%
+[2026-03-17T17:46:36.958Z] [INFO] Stats: RAM=103MB CPU=0%
+[2026-03-17T17:51:38.259Z] [INFO] Stats: RAM=104MB CPU=0%
+[2026-03-17T17:56:39.326Z] [INFO] Stats: RAM=104MB CPU=0%
+[2026-03-17T18:01:40.220Z] [INFO] Stats: RAM=104MB CPU=0%
+[2026-03-17T18:02:21.535Z] [INFO] Loaded 1 permanent room(s) from disk
+[2026-03-17T18:02:21.544Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T18:02:21.545Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T18:02:21.954Z] [INFO] User connected: ZZbugUjy9e2EHlUvAAAC (::1)
+[2026-03-17T18:02:21.956Z] [INFO] User connected: nx0A5L2xIThNPP5bAAAD (::1)
+[2026-03-17T18:02:32.042Z] [INFO] User disconnected: ZZbugUjy9e2EHlUvAAAC (::1)
+[2026-03-17T18:02:32.392Z] [INFO] User connected: IlduKdnduf-vPNw_AAAG (::1)
+[2026-03-17T18:02:32.509Z] [INFO]  (::1) joined room bopqbh3
+[2026-03-17T18:07:22.333Z] [INFO] Stats: RAM=116MB CPU=0%
+[2026-03-17T18:08:29.829Z] [INFO] User disconnected: nx0A5L2xIThNPP5bAAAD (::1)
+[2026-03-17T18:08:30.003Z] [INFO] User connected: 67AHbT8GJ6nGr1rjAAAJ (::1)
+[2026-03-17T18:12:23.233Z] [INFO] Stats: RAM=117MB CPU=0%
+[2026-03-17T18:13:29.652Z] [INFO] Room created: dbfa01r by Thrax2 (::1)
+[2026-03-17T18:13:35.639Z] [INFO] Room dbfa01r permanent flag set to true by admin
+[2026-03-17T18:13:39.156Z] [INFO] Room dbfa01r permanent flag set to false by admin
+[2026-03-17T18:13:42.173Z] [INFO] Room dbfa01r permanent flag set to true by admin
+[2026-03-17T18:17:23.608Z] [INFO] Stats: RAM=118MB CPU=0%
+[2026-03-17T18:22:24.505Z] [INFO] Stats: RAM=118MB CPU=0%
+[2026-03-17T18:22:44.297Z] [INFO] Loaded 2 permanent room(s) from disk
+[2026-03-17T18:22:44.341Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T18:22:44.343Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T18:22:44.956Z] [INFO] User connected: Q2Qbj2h9EI5xfzdwAAAC (::1)
+[2026-03-17T18:22:44.958Z] [INFO] User connected: qSPW1CMQdMsdMZvvAAAD (::1)
+[2026-03-17T18:22:46.549Z] [INFO] User disconnected: Q2Qbj2h9EI5xfzdwAAAC (::1)
+[2026-03-17T18:22:46.855Z] [INFO] User connected: kA-jt5_1ogV5l6A4AAAG (::1)
+[2026-03-17T18:22:46.980Z] [INFO]  (::1) joined room bopqbh3
+[2026-03-17T18:22:49.134Z] [INFO] User disconnected: qSPW1CMQdMsdMZvvAAAD (::1)
+[2026-03-17T18:22:49.299Z] [INFO] User connected: UyG1Y336wm2-3ejDAAAJ (::1)
+[2026-03-17T18:22:49.425Z] [INFO]  (::1) joined room dbfa01r
+[2026-03-17T18:23:07.358Z] [INFO] Room bopqbh3 permanent flag set to false by admin
+[2026-03-17T18:23:08.275Z] [INFO] Room bopqbh3 permanent flag set to true by admin
+[2026-03-17T18:23:09.174Z] [INFO] Room dbfa01r permanent flag set to false by admin
+[2026-03-17T18:23:13.023Z] [INFO] Room dbfa01r permanent flag set to true by admin
+[2026-03-17T18:23:13.970Z] [INFO] Room dbfa01r permanent flag set to false by admin
+[2026-03-17T18:23:27.322Z] [INFO] Room dbfa01r deleted (last user: UyG1Y336wm2-3ejDAAAJ)
+[2026-03-17T18:27:45.019Z] [INFO] Stats: RAM=119MB CPU=0%
+[2026-03-17T18:32:46.122Z] [INFO] Stats: RAM=120MB CPU=0%
+[2026-03-17T18:37:47.265Z] [INFO] Stats: RAM=74MB CPU=0%
+[2026-03-17T18:42:48.318Z] [INFO] Stats: RAM=76MB CPU=0%
+[2026-03-17T18:47:25.192Z] [INFO] User disconnected: kA-jt5_1ogV5l6A4AAAG (::1)
+[2026-03-17T18:47:25.192Z] [INFO] Room bopqbh3 is empty but permanent — keeping alive
+[2026-03-17T18:47:25.382Z] [INFO] User connected: D1SlENTFwteQr9bRAAAM (::1)
+[2026-03-17T18:47:25.495Z] [INFO]  (::1) joined room bopqbh3
+[2026-03-17T18:47:49.505Z] [INFO] Stats: RAM=79MB CPU=0%
+[2026-03-17T18:48:27.597Z] [INFO] Loaded 1 permanent room(s) from disk
+[2026-03-17T18:48:27.605Z] [INFO] [admin] Panel available at http://localhost:3001/admin
+[2026-03-17T18:48:27.606Z] [INFO] Server running on http://localhost:3001
+[2026-03-17T18:48:27.960Z] [INFO] User connected: tEqI2dz4gOdxhPsFAAAB (::1)
+[2026-03-17T18:48:28.193Z] [INFO] User connected: MiDQ6H3RPSq4cRiLAAAE (::1)
+[2026-03-17T18:48:28.230Z] [INFO]  (::1) joined room bopqbh3
+[2026-03-17T18:53:28.464Z] [INFO] Stats: RAM=116MB CPU=0%
+[2026-03-17T18:58:29.552Z] [INFO] Stats: RAM=116MB CPU=0%
