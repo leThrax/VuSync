@@ -93,10 +93,10 @@ export default function Player() {
     // Auto-join once socket is connected
     useEffect(() => {
         if (isConnected && pendingRoomRef.current && !room) {
-            joinRoom(pendingRoomRef.current, '')
+            joinRoom(pendingRoomRef.current, nameInput.trim())
             pendingRoomRef.current = null
         }
-    }, [isConnected, room])
+    }, [isConnected, room, nameInput])
 
     // Keep URL in sync with room state
     useEffect(() => {
